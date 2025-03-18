@@ -1,0 +1,8 @@
+services:
+  builder:
+    build:
+      context: ..
+      dockerfile: rosdebian/Dockerfile
+      target: builder
+    volumes:
+      - ..:/mount
