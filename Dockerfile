@@ -47,7 +47,7 @@ COPY amd64.env /workspace/amd64.env
 COPY arm64.env /workspace/arm64.env
 COPY ansible-galaxy-requirements.yaml /workspace/ansible-galaxy-requirements.yaml
 RUN sudo chown -R ubuntu:ubuntu /workspace
-RUN ./setup-dev-env.sh -y
+RUN ./setup-dev-env.sh -y --no-cuda-drivers
 RUN rosdep update
 
 RUN sudo apt install -y parallel fakeroot debhelper dh-python
