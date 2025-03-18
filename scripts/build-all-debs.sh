@@ -104,7 +104,7 @@ cd "$colcon_work_dir"
 
 if [ "$copy_src" = y ]; then
     echo 'Copying source files...'
-    rsync -avP "$repo_dir/src/" "$top_work_dir/src"
+    rsync -avP "$repo_dir/src/" "$colcon_work_dir/src"
 else
     echo 'Skip copying source files'
 fi
