@@ -51,9 +51,10 @@ RUN ./setup-dev-env.sh -y
 RUN rosdep update
 
 RUN sudo apt install -y parallel fakeroot debhelper dh-python
-COPY rosdebian/scripts/generate-rosdep-commands.sh /workspace/generate-rosdep-commands.sh
-COPY rosdebian/scripts/make-deb.sh /workspace/make-deb.sh
-COPY rosdebian/scripts/build-all-debs.sh /workspace/build-all-debs.sh
-RUN sudo chown -R ubuntu:ubuntu /workspace
+COPY rosdebian/scripts /workspace/scripts
+COPY rosdebian/entry.sh /
 
-CMD ["/workspace/build-all-debs.sh"]
+USER root
+RUN userdel -r ubuntu
+
+CMD ["/entry.sh"]
