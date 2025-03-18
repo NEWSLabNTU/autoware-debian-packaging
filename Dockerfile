@@ -52,9 +52,8 @@ RUN rosdep update
 
 RUN sudo apt install -y parallel fakeroot debhelper dh-python
 COPY rosdebian/scripts /workspace/scripts
-COPY rosdebian/entry.sh /
 
 USER root
 RUN userdel -r ubuntu
 
-CMD ["/entry.sh"]
+CMD ["/bin/bash"]
