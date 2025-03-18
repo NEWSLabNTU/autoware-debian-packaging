@@ -89,14 +89,9 @@ make_deb_script="$script_dir/make-deb.sh"
 # rosdep_list_file="/etc/ros/rosdep/sources.list.d/99-autoware.list"
 
 # Prepare the working directory
-sudo mkdir -p "$top_work_dir"
-sudo chmod 777 "$top_work_dir"
-
-sudo mkdir -p "$colcon_work_dir"
-sudo chmod 777 "$colcon_work_dir"
-
-sudo mkdir -p "$release_dir"
-sudo chmod 777 "$release_dir"
+mkdir -p "$top_work_dir"
+mkdir -p "$colcon_work_dir"
+mkdir -p "$release_dir"
 
 
 # Copy source files
