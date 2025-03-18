@@ -1,6 +1,6 @@
 .PHONY: default prepare build save
 
-IMAGE_NAME = autoware_rosdeiban
+IMAGE_NAME = autoware_rosdebian_builder
 
 default:
 	@echo 'Usage:'
