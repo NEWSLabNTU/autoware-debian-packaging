@@ -12,25 +12,34 @@ shift || print_usage
 pkg_dir="$1"
 shift || print_usage
 
-output_dir="$1"
+work_dir="$1"
+shift || print_usage
+
+release_dir="$1"
 shift || print_usage
 
 pkg_name_dashed="${pkg_name//_/-}"
-output_dir="$(realpath $output_dir)"
+pkg_dir=$(realpath "$pkg_dir")
+work_dir=$(realpath "$work_dir")
+release_dir=$(realpath "$release_dir")
 
-source /opt/ros/humble/setup.bash
+# Go to the source directory
 cd "$pkg_dir"
 
+# Copy Debian packaging scripts
 rm -rf debian .obj-* ros-$ROS_DISTRO-"${pkg_name_dashed}"_*.deb
-bloom-generate rosdebian --ros-distro "$ROS_DISTRO"
+cp -r -t "$pkg_dir" "$work_dir/debian"
+
+# Build the package
 fakeroot debian/rules binary
 
+# Save generated .deb/.ddeb files
 deb_path=$(find .. -name ros-${ROS_DISTRO}-${pkg_name_dashed}_'*'.deb | head -n1)
 if [ -n "$deb_path" ]; then
-    mv "$deb_path" "$output_dir"
+    mv -v "$deb_path" "$release_dir"
 fi
 
 ddeb_path=$(find .. -name ros-${ROS_DISTRO}-${pkg_name_dashed}-dbgsym_'*'.ddeb | head -n1)
 if [ -n "$ddeb_path" ]; then
-    mv "$ddeb_path" "$output_dir"
+    mv -v "$ddeb_path" "$release_dir"
 fi
