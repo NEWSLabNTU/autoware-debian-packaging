@@ -41,19 +41,21 @@ CMD ["/bin/bash"]
 
 FROM base AS builder
 
-COPY setup-dev-env.sh /workspace/setup-dev-env.sh
-COPY ansible /workspace/ansible
-COPY amd64.env /workspace/amd64.env
-COPY arm64.env /workspace/arm64.env
-COPY ansible-galaxy-requirements.yaml /workspace/ansible-galaxy-requirements.yaml
-RUN sudo chown -R ubuntu:ubuntu /workspace
-RUN ./setup-dev-env.sh -y --no-cuda-drivers
-RUN rosdep update
-
-RUN sudo apt install -y parallel fakeroot debhelper dh-python
+# Prepare the setup script
+USER root
+RUN apt install -y parallel fakeroot debhelper dh-python rsync
 COPY rosdebian/scripts /workspace/scripts
+COPY rosdebian/setup /workspace/setup
+RUN chown -R ubuntu:ubuntu /workspace
 
+# Run setup script
+USER ubuntu
+WORKDIR /workspace/setup
+RUN ./setup.sh
+
+# Remove the default user
 USER root
 RUN userdel -r ubuntu
+WORKDIR /
 
 CMD ["/bin/bash"]
