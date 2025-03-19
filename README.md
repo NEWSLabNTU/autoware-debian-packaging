@@ -5,14 +5,27 @@ container environment.
 
 ## Prerequisites
 
-- **Ubuntu 22.04** is recommended.
+- **Ubuntu 22.04** operating system is recommended.
 - **Docker**. You can follow the [instructions](https://docs.docker.com/engine/install/ubuntu/) to install Docker on Ubuntu.
 
 ## Usage
 
-Prepare the Autoware repository in `~/autoware` directory with source
-packages checked out in `~/autoware/src`.
+### Prepare Autoware Repository
 
+Prepare the Autoware version 2024.11 repository in the `~/autoware`
+directory. It is recommended to use the patched Autoware repository.
+
+<details>
+<summary>Use patched Autoware from NEWSLab (Recommended)</summary>
+```sh
+git clone -b rosdebian/2024.11 --recurse-submodules https://github.com/NEWSLabNTU/autoware.git
+cd autoware
+```
+</details>
+
+
+<details>
+<summary>Use official Autoware</summary>
 ```sh
 # at home directory
 git clone https://github.com/autowarefoundation/autoware.git
@@ -21,38 +34,44 @@ cd autoware
 mkdir src
 vcs import src < autoware.repos
 ```
+</details>
 
 > NOTE
 >
 > There is no need to run ansible scripts on the host system.
 
 Download this project and place this project directory to
-`~/autoware/rosdebian` directory. Now, launch the building script.
+`~/autoware/rosdebian` directory.
 
 ```sh
 # Within the `autoware` directory
 git clone https://github.com/NEWSLabNTU/autoware-debian-packaging.git rosdebian
 cd rosdebian
-./start.sh
 ```
 
-Once the build is done, find newly created Debian packages in
-`~/autoware/release_deb`.
+Launch the build process. It will place all artifacts in the
+`~/autoware/build_deb` directory. Once the build is done, newly
+compiled Debian packages can be found in `~/autoware/build_deb/dist`.
+
+```sh
+./start.sh
+```
 
 ## Details
 
 The build script runs the following steps.
 
 1. Create a mirrored `src` directroy in
-   `~/autoware/build_deb/_sources/src`.
+   `~/autoware/build_deb/sources/src`.
 2. Perform `rosdep install` to install required system dependencies.
 3. Run `colcon build` to build binaries in
-   `~/autoware/build_deb/_sources/install` and source the ROS environment.
+   `~/autoware/build_deb/sources/install` and source the ROS environment.
 4. Prepare Debian control and rule files in
-   `~/autoware/build_deb/$pkg/debian`. These files are either copied
-   from `~/autoware/rosdebian/config/$pkg/debian` or are generated on
-   the fly.
-5. Build .deb files for all packages and move them to `~/autoware/release_deb`.
+   `~/autoware/build_deb/build/$pkg/debian`. These files are either
+   copied from `~/autoware/rosdebian/config/$pkg/debian` or are
+   generated on the fly.
+5. Build Debian packages for all packages and move them to
+   `~/autoware/build_deb/dist`.
 
 ## Customization
 
