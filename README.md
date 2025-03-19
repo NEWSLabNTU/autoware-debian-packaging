@@ -46,5 +46,28 @@ The build script runs the following steps.
 2. Perform `rosdep install` to install required system dependencies.
 3. Run `colcon build` to build binaries in
    `~/autoware/build_deb/_sources/install` and source the ROS environment.
-4. Generate Debian control and rule files in `~/autoware/$pkg/debian`.
+4. Prepare Debian control and rule files in
+   `~/autoware/build_deb/$pkg/debian`. These files are either copied
+   from `~/autoware/rosdebian/config/$pkg/debian` or are generated on
+   the fly.
 5. Build .deb files for all packages and move them to `~/autoware/release_deb`.
+
+## Customization
+
+### Change Base Docker Image
+
+The base image is specified in the first line of Dockerfile. You can
+modify it to your preferred image. For example,
+
+```diff
+< FROM ubuntu:22.04 AS base
+---
+> FROM nvcr.io/nvidia/l4t-tensorrt:r8.6.2-devel AS base
+```
+
+### Customize Environment Setup
+
+By the time the Docker image is built, the `setup/` directory is
+copied to the `/workspace/setup` in the container and
+`/workspace/setup/setup.sh` is executed. The setup script can be
+modified to fit your needs.
