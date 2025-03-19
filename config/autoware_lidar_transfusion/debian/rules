@@ -35,6 +35,8 @@ override_dh_auto_configure:
 		-DCMAKE_INSTALL_PREFIX="/opt/ros/humble" \
 		-DAMENT_PREFIX_PATH="/opt/ros/humble" \
 		-DCMAKE_PREFIX_PATH="/opt/ros/humble" \
+		-DCMAKE_C_FLAGS="-fno-lto" \
+		-DCMAKE_CXX_FLAGS="-fno-lto" \
 		$(BUILD_TESTING_ARG)
 
 override_dh_auto_build:
