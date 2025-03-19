@@ -263,7 +263,7 @@ cd "$colcon_work_dir"
 echo 'info: build Debian packages'
 
 njobs=$(nproc)
-DEB_BUILD_OPTIONS="parallel=${njobs}" # Enable parallel compilation
+export DEB_BUILD_OPTIONS="parallel=${njobs}" # Enable parallel compilation
 
 colcon list --base-paths src | cut -f1-2 | \
     while read -r pkg_name pkg_dir; do
