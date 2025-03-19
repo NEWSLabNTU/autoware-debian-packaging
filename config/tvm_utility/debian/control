@@ -1,0 +1,12 @@
+Source: ros-humble-tvm-utility
+Section: misc
+Priority: optional
+Maintainer: Ambroise Vincent <ambroise.vincent@arm.com>
+Build-Depends: debhelper (>= 9.0.0), libopenblas-dev, libopencv-dev, ros-humble-ament-index-cpp, ros-humble-ament-lint-auto <!nocheck>, ros-humble-autoware-cmake, ros-humble-autoware-lint-common <!nocheck>, ros-humble-tvm-vendor
+Homepage: 
+Standards-Version: 3.9.2
+
+Package: ros-humble-tvm-utility
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, libopenblas-dev, libopencv-dev, ros-humble-ament-index-cpp, ros-humble-tvm-vendor
+Description: A set of utility functions to help build a machine learning pipeline using TVM as the inference engine.
