@@ -138,7 +138,10 @@ cd "$colcon_work_dir"
 
 if [ "$copy_src" = y ]; then
     echo 'info: copy source files'
-    rsync -avP --delete "$repo_dir/src/" "$colcon_work_dir/src"
+    rsync -avP --delete "$repo_dir/src/" "$colcon_work_dir/src" || {
+	echo "error: fail to copy source files" >&2
+	return 1
+    }
 else
     echo 'info: skip copying source files'
 fi
@@ -167,11 +170,17 @@ fi
 
 # Compile the whole repository
 cd "$colcon_work_dir"
-source /opt/ros/humble/setup.bash
+source /opt/ros/humble/setup.bash || {
+    echo 'error: fail to source /opt/ros/humble/setup.bash. is ROS installed?' >&2
+    return 1
+}
 
 if [ "$colcon_build" = y ]; then
     echo 'info: compile packages'
-    colcon build --base-paths src --cmake-args -DCMAKE_BUILD_TYPE=Release || return 1
+    colcon build --base-paths src --cmake-args -DCMAKE_BUILD_TYPE=Release || {
+	echo 'error: colcon build failed' >&2
+	return 1
+    }
 else
     echo 'info: skip compiling packages'
 fi
