@@ -77,29 +77,36 @@ script_dir=$(cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd)
 repo_dir=$(realpath "$repo_dir")
 top_work_dir="$repo_dir/build_deb"
 colcon_work_dir="$top_work_dir/_sources"
+config_dir="$repo_dir/rosdebian/config"
 release_dir="$repo_dir/release_deb"
 generate_debian_script="$script_dir/generate-debian.sh"
 rosdep_gen_script="$script_dir/generate-rosdep-commands.sh"
 extra_deps_script="$script_dir/extra-deps.sh"
 make_deb_script="$script_dir/make-deb.sh"
 
-# Locate input/output files
-# rosdep_script_file="$colcon_work_dir/rosdep.sh"
-# rosdep_yaml_file="$top_work_dir/rosdep.yaml"
-# rosdep_list_file="/etc/ros/rosdep/sources.list.d/99-autoware.list"
-
 # Prepare the working directory
 mkdir -p "$top_work_dir"
 mkdir -p "$colcon_work_dir"
 mkdir -p "$release_dir"
 
+colcon list --base-paths src | cut -f1-2 | \
+    while read -r pkg_name pkg_dir; do
+	# Prepare the working directory for the package
+	pkg_dir=$(realpath "$pkg_dir")
+	pkg_work_dir="$(make_pkg_work_dir $top_work_dir $pkg_name)"
+	pkg_config_dir="$(make_pkg_config_dir $config_dir $pkg_name)"
+
+	rm -rf "$pkg_work_dir"
+	mkdir "$pkg_work_dir"
+	mkdir -p "$pkg_config_dir"
+    done
 
 # Copy source files
 cd "$colcon_work_dir"
 
 if [ "$copy_src" = y ]; then
     echo 'Copying source files...'
-    rsync -avP "$repo_dir/src/" "$colcon_work_dir/src"
+    rsync -avP --delete "$repo_dir/src/" "$colcon_work_dir/src"
 else
     echo 'Skip copying source files'
 fi
@@ -112,12 +119,6 @@ if [ "$rosdep_install" = y ]; then
 	echo "ERROR: Fail to install rosdep dependencies"
 	exit 1
     }
-    # "$rosdep_gen_script"  > "$rosdep_script_file"
-    # chmod +x "$rosdep_script_file"
-    # "$rosdep_script_file" || {
-    # 	echo "ERROR: Fail to install rosdep dependencies"
-    # 	exit 1
-    # }
 else
     echo 'Skip installing rosdep dependencies'
 fi
@@ -142,10 +143,43 @@ else
     echo 'Skip compiling packages'
 fi
 
+source install/setup.bash
+
+# Generate a rosdep file to include packages and perform `rosdep
+# update`. The step is necessary for later bloom-generate.
+rosdep_yaml_file="$top_work_dir/rosdep.yaml"
+rosdep_list_file="/etc/ros/rosdep/sources.list.d/99-autoware.list"
+
+if [ "$gen_rosdep_list" = y ]; then
+    echo 'Generate rosdep list'
+    colcon list --base-paths src | cut -f1 | \
+	sort | \
+	while read pkg_name; do
+	    pkg_name_dashed="${pkg_name//_/-}"
+	    key="ros-${ROS_DISTRO}-${pkg_name_dashed}"
+	    echo "\
+${pkg_name}:
+  ubuntu: [${key}]"
+	done > "$rosdep_yaml_file"
+
+    sudo sh -c "echo 'yaml file://${rosdep_yaml_file}' > '$rosdep_list_file'"
+    rosdep update
+else
+    echo 'Skip generating rosdep list'
+fi
+
 # Build Debian files for each package in topological order.
 echo 'Generate Debian packaging scripts'
 
 make_pkg_work_dir() {
+    base_dir="$1"
+    shift || return 1
+    pkg_name="$1"
+    shift || return 1
+    echo "$base_dir/$pkg_name"
+}
+
+make_pkg_config_dir() {
     base_dir="$1"
     shift || return 1
     pkg_name="$1"
@@ -159,53 +193,43 @@ colcon list --base-paths src | cut -f1-2 | \
 	pkg_name_dashed="${pkg_name//_/-}"
 	pkg_dir=$(realpath "$pkg_dir")
 	pkg_work_dir="$(make_pkg_work_dir $top_work_dir $pkg_name)"
+	pkg_config_dir="$(make_pkg_config_dir $config_dir $pkg_name)"
 	out_file="$pkg_work_dir/gen_deb.out"
 	err_file="$pkg_work_dir/gen_deb.err"
-	debian_dir="$pkg_work_dir/debian"
-	
+	src_debian_dir="$config_dir/$pkg_name/debian"
+	dst_debian_dir="$pkg_work_dir/debian"
+
 	mkdir -p "$pkg_work_dir"
+	mkdir -p "$pkg_config_dir"
 	truncate -s 0 "$out_file"
 	truncate -s 0 "$err_file"
-	
-	# Skip if the `debian` already exists
-	if [ -d "$debian_dir" ]; then
-	    echo "echo 'SKIP BLOOM_GENERATE $pkg_name'"
-	    continue
-	fi
-	echo "echo 'BLOOM_GENERATE $pkg_name'"
 
-	# Create `debian` directory.
-	cat <<EOF
-"$generate_debian_script" '$pkg_name' '$pkg_dir' '$pkg_work_dir' >> '$out_file' 2>> '$err_file' || \
+	# Skip if the `debian` already exists
+	if [ -d "$src_debian_dir" ]; then
+	    cat <<EOF
+echo 'COPY DEBIAN $pkg_name'; \
+( \
+  rsync -av --delete '$src_debian_dir/' '$dst_debian_dir/' \
+) >> '$out_file' 2>> '$err_file' || \
 echo 'FAIL $pkg_name' >&2
 EOF
+	else
+	    cat <<EOF
+echo 'BLOOM_GENERATE $pkg_name'; \
+( \
+  cd '$pkg_config_dir' && \
+  bloom-generate rosdebian --ros-distro '$ROS_DISTRO' '$pkg_dir' && \
+  rsync -av --delete '$src_debian_dir/' '$dst_debian_dir/' \
+) >> '$out_file' 2>> '$err_file' || \
+echo 'FAIL $pkg_name' >&2
+EOF
+	fi
     done | parallel --lb
-
-# # List packages from the repository in the rosdep file and perform
-# # `rosdep update`
-# if [ "$gen_rosdep_list" = y ]; then
-#     echo 'Generate rosdep list'
-#     colcon list | cut -f1 | \
-# 	sort | \
-# 	while read pkg_name; do
-# 	    pkg_name_dashed="${pkg_name//_/-}"
-# 	    key="ros-${ROS_DISTRO}-${pkg_name_dashed}"
-# 	    echo "\
-# ${pkg_name}:
-#   ubuntu: [${key}]"
-# 	done > "$rosdep_yaml_file"
-
-#     sudo sh -c "echo 'yaml file://${rosdep_yaml_file}' > '$rosdep_list_file'"
-#     rosdep update
-# else
-#     echo 'Skip generating rosdep list'
-# fi
 
 # Build Debian files for each package in topological order.
 echo 'Build Debian packages'
 
-source install/setup.bash
-njobs=$(( ($(nproc) + 1) / 2 ))
+njobs=$(nproc)
 
 colcon list --base-paths src | cut -f1-2 | \
     while read -r pkg_name pkg_dir; do
@@ -216,8 +240,7 @@ colcon list --base-paths src | cut -f1-2 | \
 	out_file="$pkg_work_dir/build.out"
 	err_file="$pkg_work_dir/build.err"
 	# status_file="$pkg_work_dir/status"
-	
-	mkdir -p "$pkg_work_dir"
+
 	truncate -s 0 "$out_file"
 	truncate -s 0 "$err_file"
 
