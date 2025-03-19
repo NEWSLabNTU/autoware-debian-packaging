@@ -22,7 +22,13 @@ repo_dir=
 install_extra_deps=y
 
 print_usage() {
-    echo "Usage: $0 [--skip-rosdep-install] --repo=REPO_DIR"
+    echo "Usage: $0 [OPTION]... --repo=REPO_DIR"
+    echo "  -h,--help                   show this help message"
+    echo "  --skip-rosdep-install       do not run `rosdep install`"
+    echo "  --skip-copy-src             do not copy source files to the build cache"
+    echo "  --skip-gen-rosdep-list      do not modify the system rosdep list"
+    echo "  --skip-colcon-build         do not run `colcon build`"
+    echo "  --skip-install-extra-deps   do not install extra dependencies"
 }
 
 while true; do
@@ -60,7 +66,7 @@ while true; do
 	    break
 	    ;;
 	*)
-	    echo "Invalid option: $1" >&2
+	    echo "error: invalid option: ${1}" >&2
 	    print_usage >&2
 	    exit 1
 	    ;;
@@ -76,82 +82,111 @@ fi
 script_dir=$(cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd)
 repo_dir=$(realpath "$repo_dir")
 top_work_dir="$repo_dir/build_deb"
-colcon_work_dir="$top_work_dir/_sources"
+colcon_work_dir="$top_work_dir/sources"
 config_dir="$repo_dir/rosdebian/config"
-release_dir="$repo_dir/release_deb"
+release_dir="$top_work_dir/dist"
+pkg_build_dir="$top_work_dir/build"
+log_dir="$top_work_dir/log"
+successful_pkgs_file="$log_dir/successful_pkgs.txt"
+failed_pkgs_file="$log_dir/failed_pkgs.txt"
 generate_debian_script="$script_dir/generate-debian.sh"
 rosdep_gen_script="$script_dir/generate-rosdep-commands.sh"
 extra_deps_script="$script_dir/extra-deps.sh"
 make_deb_script="$script_dir/make-deb.sh"
 
+truncate -s 0 "$successful_pkgs_file"
+truncate -s 0 "$failed_pkgs_file"
+
+
+make_pkg_work_dir() {
+    pkg_name="$1"
+    shift || return 1
+    echo "$pkg_build_dir/$pkg_name"
+}
+
+make_pkg_config_dir() {
+    pkg_name="$1"
+    shift || return 1
+    echo "$config_dir/$pkg_name"
+}
+
 # Prepare the working directory
+echo 'info: prepare working directories'
+cd "$repo_dir"
+
 mkdir -p "$top_work_dir"
 mkdir -p "$colcon_work_dir"
 mkdir -p "$release_dir"
+mkdir -p "$log_dir"
+mkdir -p "$pkg_build_dir"
 
 colcon list --base-paths src | cut -f1-2 | \
     while read -r pkg_name pkg_dir; do
 	# Prepare the working directory for the package
 	pkg_dir=$(realpath "$pkg_dir")
-	pkg_work_dir="$(make_pkg_work_dir $top_work_dir $pkg_name)"
-	pkg_config_dir="$(make_pkg_config_dir $config_dir $pkg_name)"
+	pkg_work_dir="$(make_pkg_work_dir $pkg_name)"
+	pkg_config_dir="$(make_pkg_config_dir $pkg_name)"
 
-	rm -rf "$pkg_work_dir"
-	mkdir "$pkg_work_dir"
-	mkdir -p "$pkg_config_dir"
-    done
+	cat<<EOF
+mkdir -p '$pkg_work_dir' && \
+rm -f '$pkg_work_dir'/*.out '$pkg_work_dir'/*.err
+EOF
+    done | parallel --lb
 
 # Copy source files
 cd "$colcon_work_dir"
 
 if [ "$copy_src" = y ]; then
-    echo 'Copying source files...'
+    echo 'info: copy source files'
     rsync -avP --delete "$repo_dir/src/" "$colcon_work_dir/src"
 else
-    echo 'Skip copying source files'
+    echo 'info: skip copying source files'
 fi
 
 # Generate commands that is effectively the same with `rosdep install
 # ...` and execute them.
 if [ "$rosdep_install" = y ]; then
-    echo 'Install rosdep dependencies'
+    echo 'info: install rosdep dependencies'
     "$rosdep_gen_script" | bash - || {
-	echo "ERROR: Fail to install rosdep dependencies"
+	echo "error: fail to install rosdep dependencies" >&2
 	exit 1
     }
 else
-    echo 'Skip installing rosdep dependencies'
+    echo 'info: skip installing rosdep dependencies'
 fi
 
 # Install extra dependencies
 if [ "$install_extra_deps" = y ]; then
     "$extra_deps_script" || {
-	echo "ERROR: Fail to install extra dependencies"
+	echo "error: fail to install extra dependencies" >&2
 	exit 1
     }
 else
-    echo 'Skip installing extra dependencies'
+    echo 'info: skip installing extra dependencies'
 fi
 
 # Compile the whole repository
+cd "$colcon_work_dir"
 source /opt/ros/humble/setup.bash
 
 if [ "$colcon_build" = y ]; then
-    echo 'Compile packages'
+    echo 'info: compile packages'
     colcon build --base-paths src --cmake-args -DCMAKE_BUILD_TYPE=Release || return 1
 else
-    echo 'Skip compiling packages'
+    echo 'info: skip compiling packages'
 fi
 
 source install/setup.bash
 
 # Generate a rosdep file to include packages and perform `rosdep
 # update`. The step is necessary for later bloom-generate.
+cd "$colcon_work_dir"
+
 rosdep_yaml_file="$top_work_dir/rosdep.yaml"
 rosdep_list_file="/etc/ros/rosdep/sources.list.d/99-autoware.list"
 
 if [ "$gen_rosdep_list" = y ]; then
-    echo 'Generate rosdep list'
+    echo 'info: generate rosdep list'
     colcon list --base-paths src | cut -f1 | \
 	sort | \
 	while read pkg_name; do
@@ -165,35 +200,20 @@ ${pkg_name}:
     sudo sh -c "echo 'yaml file://${rosdep_yaml_file}' > '$rosdep_list_file'"
     rosdep update
 else
-    echo 'Skip generating rosdep list'
+    echo 'info: skip generating rosdep list'
 fi
 
 # Build Debian files for each package in topological order.
-echo 'Generate Debian packaging scripts'
-
-make_pkg_work_dir() {
-    base_dir="$1"
-    shift || return 1
-    pkg_name="$1"
-    shift || return 1
-    echo "$base_dir/$pkg_name"
-}
-
-make_pkg_config_dir() {
-    base_dir="$1"
-    shift || return 1
-    pkg_name="$1"
-    shift || return 1
-    echo "$base_dir/$pkg_name"
-}
+cd "$colcon_work_dir"
+echo 'info: generate Debian packaging scripts'
 
 colcon list --base-paths src | cut -f1-2 | \
     while read -r pkg_name pkg_dir; do
 	# Prepare the working directory for the package
 	pkg_name_dashed="${pkg_name//_/-}"
 	pkg_dir=$(realpath "$pkg_dir")
-	pkg_work_dir="$(make_pkg_work_dir $top_work_dir $pkg_name)"
-	pkg_config_dir="$(make_pkg_config_dir $config_dir $pkg_name)"
+	pkg_work_dir="$(make_pkg_work_dir $pkg_name)"
+	pkg_config_dir="$(make_pkg_config_dir $pkg_name)"
 	out_file="$pkg_work_dir/gen_deb.out"
 	err_file="$pkg_work_dir/gen_deb.err"
 	src_debian_dir="$config_dir/$pkg_name/debian"
@@ -207,27 +227,31 @@ colcon list --base-paths src | cut -f1-2 | \
 	# Skip if the `debian` already exists
 	if [ -d "$src_debian_dir" ]; then
 	    cat <<EOF
-echo 'COPY DEBIAN $pkg_name'; \
+echo 'info: copy provided debian directory for $pkg_name'; \
 ( \
   rsync -av --delete '$src_debian_dir/' '$dst_debian_dir/' \
 ) >> '$out_file' 2>> '$err_file' || \
-echo 'FAIL $pkg_name' >&2
+echo "error: fail to copy debian directory for ${pkg_name}" >&2
 EOF
 	else
 	    cat <<EOF
-echo 'BLOOM_GENERATE $pkg_name'; \
+echo 'info: run bloom-generate for $pkg_name'; \
 ( \
   cd '$pkg_config_dir' && \
   bloom-generate rosdebian --ros-distro '$ROS_DISTRO' '$pkg_dir' && \
   rsync -av --delete '$src_debian_dir/' '$dst_debian_dir/' \
 ) >> '$out_file' 2>> '$err_file' || \
-echo 'FAIL $pkg_name' >&2
+( \
+  echo "error: fail to generate Debain files for ${pkg_name}" >&2 && \
+  echo '$pkg_name' >> '$failed_pkgs_file' \
+)
 EOF
 	fi
     done | parallel --lb
 
 # Build Debian files for each package in topological order.
-echo 'Build Debian packages'
+cd "$colcon_work_dir"
+echo 'info: build Debian packages'
 
 njobs=$(nproc)
 
@@ -236,7 +260,7 @@ colcon list --base-paths src | cut -f1-2 | \
 	# Prepare the working directory for the package
 	pkg_name_dashed="${pkg_name//_/-}"
 	pkg_dir=$(realpath "$pkg_dir")
-	pkg_work_dir="$(make_pkg_work_dir $top_work_dir $pkg_name)"
+	pkg_work_dir="$(make_pkg_work_dir $pkg_name)"
 	out_file="$pkg_work_dir/build.out"
 	err_file="$pkg_work_dir/build.err"
 	# status_file="$pkg_work_dir/status"
@@ -247,14 +271,18 @@ colcon list --base-paths src | cut -f1-2 | \
 	# If the Debian package is already built, skip the build.
 	deb_path=$(find "$release_dir" -name ros-${ROS_DISTRO}-${pkg_name_dashed}_'*'.deb | head -n1)
 	if [ -n "$deb_path" ]; then
-	    echo "echo 'SKIP BUILD $pkg_name'"
+	    echo "echo 'info: skip $pkg_name that its Debian package is already built'"
 	    continue
 	fi
 
 	cat <<EOF
-echo 'BUILD $pkg_name' && \
+echo 'info: build Debian package for $pkg_name' && \
 '$make_deb_script' '$pkg_name' '$pkg_dir' '$pkg_work_dir' '$release_dir' > '$out_file' 2> '$err_file' && \
-echo 'SUCCESS $pkg_name' || \
-echo 'FAIL $pkg_name'
+echo "info: build successful for ${pkg_name}" && \
+echo '$pkg_name' >> '$successful_pkgs_file' || \
+( \
+  echo "error: fail to build Debian package for ${pkg_name}" && \
+  echo '$pkg_name' >> '$failed_pkgs_file' \
+)
 EOF
     done | parallel "-j${njobs}" --lb
