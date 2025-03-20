@@ -1,0 +1,42 @@
+
+# Maintainer: Your Name <you@example.com>
+pkgname=autoware-localrepo
+pkgver=1.0
+pkgrel=1
+pkgdesc="Local repository for Autoware packages"
+arch=('any')
+url="https://example.com"
+license=('MIT')
+depends=('dpkg') # Ensure apt and dpkg are available
+makedepends=() # If using debhelper tools
+source=('packages.tar')
+sha256sums=('SKIP')
+noextract=('packages.tar')
+
+prepare() {
+  cd "$srcdir"
+  tar -xf packages.tar
+}
+
+package() {
+  # Create repository directory
+  install -dm755 "$pkgdir/opt/autoware-localrepo"
+
+  # Copy all .deb files into the repository
+  cp "$srcdir"/*.deb "$srcdir"/*.ddeb "$pkgdir/opt/autoware-localrepo/"
+
+  # Ensure correct permissions
+  chmod 644 "$pkgdir/opt/autoware-localrepo/"*.deb "$pkgdir/opt/autoware-localrepo/"*.ddeb
+
+  # Create a local repository using dpkg-scanpackages
+  mkdir -p "$pkgdir/opt/autoware-localrepo/dists/local/main/binary-all"
+  (
+      cd "$pkgdir" &&
+      dpkg-scanpackages "opt/autoware-localrepo" /dev/null / | gzip -9 > "$pkgdir/opt/autoware-localrepo/dists/local/main/binary-all/Packages.gz"
+  )
+
+  # Create APT source list entry
+  install -Dm644 /dev/stdin "$pkgdir/etc/apt/sources.list.d/autoware-localrepo.list" <<EOF
+deb [trusted=yes] file:///opt/autoware-localrepo local main
+EOF
+}
