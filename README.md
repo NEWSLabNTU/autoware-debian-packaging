@@ -10,22 +10,23 @@ container environment.
 
 ## Usage
 
-### Prepare Autoware Repository
+### Prepare Autoware Source Repository
 
 Prepare the Autoware version 2024.11 repository in the `~/autoware`
-directory. It is recommended to use the patched Autoware repository.
+directory. It is recommended to use the patched Autoware repository
+from NEWSLab.
 
 <details>
-<summary>Use patched Autoware from NEWSLab (Recommended)</summary>
+<summary>Option 1: Use Patched Autoware from NEWSLab (Recommended)</summary>
 ```sh
 git clone -b rosdebian/2024.11 --recurse-submodules https://github.com/NEWSLabNTU/autoware.git
 cd autoware
 ```
 </details>
 
-
 <details>
-<summary>Use official Autoware</summary>
+<summary>Option 2: Use Official Autoware</summary>
+
 ```sh
 # at home directory
 git clone https://github.com/autowarefoundation/autoware.git
@@ -39,6 +40,8 @@ vcs import src < autoware.repos
 > NOTE
 >
 > There is no need to run ansible scripts on the host system.
+
+### Build Debian Packages
 
 Download this project and place this project directory to
 `~/autoware/rosdebian` directory.
@@ -55,6 +58,25 @@ compiled Debian packages can be found in `~/autoware/build_deb/dist`.
 
 ```sh
 ./start.sh
+```
+
+After the script finishes, a _repository_ package is create along side
+the `start.sh`.
+
+```
+# The name may vary depending on your system.
+autoware-localrepo_1.0-1_amd64.deb
+```
+
+### Install Autoware Debian Packages
+
+Copy the `autoware-localrepo_1.0-1_amd64.deb` to the target system
+you'd like to deploy. Run the commands below to install Autoware.
+
+```sh
+sudo dpkg -i autoware-localrepo_1.0-1_amd64.deb
+sudo apt update
+sudo apt install ros-humble-autoware-full
 ```
 
 ## Details
