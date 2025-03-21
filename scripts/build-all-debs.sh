@@ -87,6 +87,7 @@ config_dir="$repo_dir/rosdebian/config"
 release_dir="$top_work_dir/dist"
 pkg_build_dir="$top_work_dir/build"
 log_dir="$top_work_dir/log"
+deb_pkgs_file="$log_dir/deb_pkgs.txt"
 successful_pkgs_file="$log_dir/successful_pkgs.txt"
 failed_pkgs_file="$log_dir/failed_pkgs.txt"
 generate_debian_script="$script_dir/generate-debian.sh"
@@ -94,6 +95,7 @@ rosdep_gen_script="$script_dir/generate-rosdep-commands.sh"
 extra_deps_script="$script_dir/extra-deps.sh"
 make_deb_script="$script_dir/make-deb.sh"
 
+truncate -s 0 "$deb_pkgs_file"
 truncate -s 0 "$successful_pkgs_file"
 truncate -s 0 "$failed_pkgs_file"
 
@@ -257,6 +259,12 @@ echo 'info: run bloom-generate for $pkg_name'; \
 EOF
 	fi
     done | parallel --lb
+
+#
+colcon list --base-paths src | cut -f1 | \
+    while read -r pkg_name; do
+	echo ros-"${ROS_DISTRO}"-"${pkg_name//_/-}"
+    done > "$deb_pkgs_file"
 
 # Build Debian files for each package in topological order.
 cd "$colcon_work_dir"

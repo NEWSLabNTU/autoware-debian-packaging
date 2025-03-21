@@ -1,4 +1,5 @@
 /src/
 /pkg/
 /packages.tar
+/packages/
 /autoware-localrepo_*.deb

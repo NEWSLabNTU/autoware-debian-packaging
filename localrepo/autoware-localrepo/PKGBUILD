@@ -1,0 +1,69 @@
+# Maintainer: Jerry Lin <jerry73204@gmail.com>
+pkgname=autoware-localrepo
+pkgver=1.0
+pkgrel=1
+pkgdesc="Local repository for Autoware packages"
+arch=('any')
+url="https://autoware.org/"
+license=('MIT')
+depends=('dpkg') # Ensure apt and dpkg are available
+makedepends=() # If using debhelper tools
+source=('packages.tar' 'Release.in')
+sha256sums=('SKIP' 'SKIP')
+noextract=('packages.tar')
+
+prepare() {
+  cd "$srcdir"
+  tar -xf packages.tar
+}
+
+package() {
+  # Create repository directory
+  local target_arch="$(dpkg --print-architecture)"
+  local target_dist="$(lsb_release -sc)"
+  local suite="$target_dist"
+  local release_date="$(date -Ru)"
+  local component="main"
+
+  local repo_prefix="/opt/autoware-localrepo"
+  local repo_dir="${pkgdir}/${repo_prefix}"
+  local suite_dir="${repo_dir}/dists/${suite}"
+  local pool_dir="${suite_dir}/pool"
+  local binary_dir="${suite_dir}/${component}/binary-${target_arch}"
+
+  install -dm755 "$pool_dir"
+  install -dm755 "$binary_dir"
+
+  # Copy all .deb files into the repository
+  shopt -s nullglob
+  deb_files=("$srcdir"/*_"${target_arch}".deb)
+
+  if [[ ${#deb_files[@]} -gt 0 ]]; then
+      cp "${deb_files[@]}" "$pool_dir"
+      chmod 644 "$pool_dir"/*.deb
+  fi
+
+  # Create a local repository using dpkg-scanpackages
+  (
+      cd "$repo_dir" &&
+	  dpkg-scanpackages \
+	      -a "${target_arch}" \
+	      "dists/${suite}/pool" \
+	      "/dev/null" | \
+	      gzip > "$binary_dir/Packages.gz"
+  )
+
+  # Creat a Release file
+  env \
+      target_arch="${target_arch}" \
+      target_dist="${target_dist}" \
+      suite="${suite}" \
+      release_date="${release_date}" \
+      component="${component}" \
+      envsubst < "$srcdir/Release.in" > "$binary_dir/Release"
+
+  # Create APT source list entry
+  install -Dm644 /dev/stdin "$pkgdir/etc/apt/sources.list.d/autoware-localrepo.list" <<EOF
+deb [trusted=yes] file://${repo_prefix} ${suite} ${component}
+EOF
+}

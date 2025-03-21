@@ -39,3 +39,6 @@ run:
 
 save:
 	docker save $(IMAGE_NAME) | zstd -T0 -o $(IMAGE_NAME).tar.zstd
+
+pack:
+	$(MAKE) -C localrepo build
