@@ -99,7 +99,6 @@ truncate -s 0 "$deb_pkgs_file"
 truncate -s 0 "$successful_pkgs_file"
 truncate -s 0 "$failed_pkgs_file"
 
-
 make_pkg_work_dir() {
     pkg_name="$1"
     shift || return 1
@@ -147,6 +146,9 @@ if [ "$copy_src" = y ]; then
 else
     echo 'info: skip copying source files'
 fi
+
+# Make sure package index is up-to-date
+sudo apt update
 
 # Generate commands that is effectively the same with `rosdep install
 # ...` and execute them.
