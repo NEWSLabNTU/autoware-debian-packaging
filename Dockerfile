@@ -1,4 +1,4 @@
-FROM ubuntu:22.04 AS base
+FROM nvcr.io/nvidia/l4t-tensorrt:r8.6.2-devel AS base
 
 # Update system packages
 RUN apt update -y
