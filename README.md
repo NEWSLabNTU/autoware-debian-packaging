@@ -18,6 +18,7 @@ from NEWSLab.
 
 <details>
 <summary>Option 1: Use Patched Autoware from NEWSLab (Recommended)</summary>
+
 ```sh
 git clone -b rosdebian/2024.11 --recurse-submodules https://github.com/NEWSLabNTU/autoware.git
 cd autoware
