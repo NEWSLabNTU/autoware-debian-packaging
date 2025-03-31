@@ -148,6 +148,12 @@ else
     echo 'info: skip copying source files'
 fi
 
+# Run `apt update` to refresh package caches
+sudo apt update || {
+    echo 'error: `apt update` failed' >&2
+    exit 1
+}
+
 # Generate commands that is effectively the same with `rosdep install
 # ...` and execute them.
 if [ "$rosdep_install" = y ]; then
