@@ -122,6 +122,9 @@ mkdir -p "$release_dir"
 mkdir -p "$log_dir"
 mkdir -p "$pkg_build_dir"
 
+# Prevent colcon from erroneously scan this folder
+touch "$top_work_dir/COLCON_IGNORE"
+
 colcon list --base-paths src | cut -f1-2 | \
     while read -r pkg_name pkg_dir; do
 	# Prepare the working directory for the package
