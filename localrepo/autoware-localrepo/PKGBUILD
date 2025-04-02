@@ -1,6 +1,6 @@
 # Maintainer: Jerry Lin <jerry73204@gmail.com>
 pkgname=autoware-localrepo
-pkgver=1.0
+pkgver=2025.2
 pkgrel=1
 pkgdesc="Local repository for Autoware packages"
 arch=('any')
