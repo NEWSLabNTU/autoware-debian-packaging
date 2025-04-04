@@ -1,3 +1,741 @@
+ros-humble-do-nothing-plugin (8.0.0-0jammy) jammy; urgency=high
+
+  * Merge pull request #1472 <https://github.com/tier4/scenario_simulator_v2/issues/1472> from tier4/ref/RJD-1387-hdmap-utils-to-lanelet-wrapper-pose
+    HdMapUtils refactor (PR 1/6)  - create lanelet_wrapper: use ::lanelet_map and ::pose
+  * Merge branch 'master' into ref/RJD-1387-hdmap-utils-to-lanelet-wrapper-pose
+  * Merge branch 'ref/RJD-1387-hdmap-utils-to-lanelet-wrapper-pose' of github.com:tier4/scenario_simulator_v2 into ref/RJD-1387-hdmap-utils-to-lanelet-wrapper-pose
+  * Merge remote-tracking branch 'origin/master' into ref/RJD-1387-hdmap-utils-to-lanelet-wrapper-pose
+  * Merge branch 'master' into ref/RJD-1387-hdmap-utils-to-lanelet-wrapper-pose
+  * Merge remote-tracking branch 'origin' into ref/RJD-1387-hdmap-utils-to-lanelet-wrapper-pose
+  * Merge branch 'master' into ref/RJD-1387-hdmap-utils-to-lanelet-wrapper-pose
+  * Merge branch 'master' into ref/RJD-1387-hdmap-utils-to-lanelet-wrapper-pose
+  * Merge remote-tracking branch 'origin' into ref/RJD-1387-hdmap-utils-to-lanelet-wrapper-pose
+  * Merge branch 'master' into ref/RJD-1387-hdmap-utils-to-lanelet-wrapper-pose
+  * Merge branch 'master' into ref/RJD-1387-hdmap-utils-to-lanelet-wrapper-pose
+  * Merge remote-tracking branch 'origin/master' into ref/RJD-1387-hdmap-utils-to-lanelet-wrapper-pose
+  * feat(traffic_simulator, openscenario_interpreter, behavior_tree_plugin, simple_sensor_simulator): use pose:: from lanelet_wrapper instead of hdmap_utils methods
+  * Contributors: Dawid Moszynski, Dawid Moszyński, Masaya Kataoka, Mateusz Palczuk
+
+ -- Masaya Kataoka <masaya.kataoka@tier4.jp>  Thu, 23 Jan 2025 16:00:00 -0000
+
+ros-humble-do-nothing-plugin (7.4.7-0jammy) jammy; urgency=high
+
+  * Merge branch 'master' into RJD-1511/bug_fix
+  * Bump version of scenario_simulator_v2 from version 7.4.5 to version 7.4.6
+  * Merge branch 'master' into RJD-1511/bug_fix
+  * Merge branch 'master' into refactor/parameter_value_distribution
+  * Merge branch 'master' into refactor/parameter_value_distribution
+  * Contributors: Kotaro Yoshimoto, Michał Ciasnocha, Release Bot
+  * Merge branch 'master' into refactor/parameter_value_distribution
+  * Merge branch 'master' into refactor/parameter_value_distribution
+  * Contributors: Kotaro Yoshimoto
+
+ -- Masaya Kataoka <masaya.kataoka@tier4.jp>  Sun, 19 Jan 2025 16:00:00 -0000
+
+ros-humble-do-nothing-plugin (7.4.6-0jammy) jammy; urgency=high
+
+  * Merge remote-tracking branch 'origin/master' into dependabot/pip/jinja2-3.1.5
+  * Contributors: Masaya Kataoka
+
+ -- Masaya Kataoka <masaya.kataoka@tier4.jp>  Thu, 09 Jan 2025 16:00:00 -0000
+
+ros-humble-do-nothing-plugin (7.4.5-0jammy) jammy; urgency=high
+
+  * Merge branch 'master' into fix/pass_despawn_function_in_constructor
+  * Merge remote-tracking branch 'origin/master' into fix/pass_despawn_function_in_constructor
+  * Merge branch 'master' into fix/pass_despawn_function_in_constructor
+  * Merge branch 'master' into fix/pass_despawn_function_in_constructor
+  * Contributors: Masaya Kataoka
+
+ -- Masaya Kataoka <masaya.kataoka@tier4.jp>  Thu, 09 Jan 2025 16:00:00 -0000
+
+ros-humble-do-nothing-plugin (7.4.4-0jammy) jammy; urgency=high
+
+  * Merge branch 'master' into refactor/concealer-2
+  * Merge remote-tracking branch 'origin/master' into refactor/concealer-2
+  * Merge remote-tracking branch 'origin/master' into refactor/concealer-2
+  * Merge remote-tracking branch 'origin/master' into refactor/concealer-2
+  * Contributors: Tatsuya Yamasaki, yamacir-kit
+
+ -- Masaya Kataoka <masaya.kataoka@tier4.jp>  Wed, 08 Jan 2025 16:00:00 -0000
+
+ros-humble-do-nothing-plugin (7.4.3-0jammy) jammy; urgency=high
+
+  * Merge branch 'master' into tmp/pc-patch
+  * Contributors: Kotaro Yoshimoto
+
+ -- Masaya Kataoka <masaya.kataoka@tier4.jp>  Mon, 06 Jan 2025 16:00:00 -0000
+
+ros-humble-do-nothing-plugin (7.4.2-0jammy) jammy; urgency=high
+
+
+
+ -- Masaya Kataoka <masaya.kataoka@tier4.jp>  Mon, 06 Jan 2025 16:00:00 -0000
+
+ros-humble-do-nothing-plugin (7.4.1-0jammy) jammy; urgency=high
+
+  * Merge remote-tracking branch 'origin/master' into fix/canonicalize_function
+  * Merge remote-tracking branch 'origin/master' into fix/canonicalize_function
+  * Contributors: Masaya Kataoka
+
+ -- Masaya Kataoka <masaya.kataoka@tier4.jp>  Mon, 23 Dec 2024 16:00:00 -0000
+
+ros-humble-do-nothing-plugin (7.4.0-0jammy) jammy; urgency=high
+
+  * Merge branch 'master' into RJD-1457/traffic_sink_refactor
+  * Merge branch 'master' into RJD-1457/traffic_sink_refactor
+  * Merge branch 'master' into RJD-1457/traffic_sink_refactor
+  * Merge branch 'master' into RJD-1457/traffic_sink_refactor
+  * Merge branch 'master' into RJD-1457/traffic_sink_refactor
+  * Merge branch 'master' into RJD-1457/traffic_sink_refactor
+  * Merge branch 'master' into RJD-1457/traffic_sink_refactor
+  * Merge branch 'master' into RJD-1457/traffic_sink_refactor
+  * Merge tag '6.0.1' into RJD-1457/traffic_sink_refactor
+  * Merge branch 'master' of https://github.com/tier4/scenario_simulator_v2 into feature/enable_specify_entity_type_in_autosink
+  * Merge branch 'master' into feature/enable_specify_entity_type_in_autosink
+  * Contributors: Masaya Kataoka, Michał Ciasnocha, robomic
+
+ -- Masaya Kataoka <masaya.kataoka@tier4.jp>  Sun, 22 Dec 2024 16:00:00 -0000
+
+ros-humble-do-nothing-plugin (7.3.5-0jammy) jammy; urgency=high
+
+  * Merge branch 'master' into refactor/concealer-1
+  * Merge branch 'master' into refactor/concealer-1
+  * Merge branch 'master' into refactor/concealer-1
+  * Merge remote-tracking branch 'origin/master' into refactor/concealer-1
+  * Merge remote-tracking branch 'origin/master' into refactor/concealer-1
+  * Merge remote-tracking branch 'origin/master' into refactor/concealer-1
+  * Merge remote-tracking branch 'origin/master' into refactor/concealer-1
+  * Merge remote-tracking branch 'origin/master' into refactor/concealer-1
+  * Contributors: Tatsuya Yamasaki, yamacir-kit
+
+ -- Masaya Kataoka <masaya.kataoka@tier4.jp>  Thu, 19 Dec 2024 16:00:00 -0000
+
+ros-humble-do-nothing-plugin (7.3.4-0jammy) jammy; urgency=high
+
+  * Merge branch 'master' into feature/is_in_intersection
+  * Merge remote-tracking branch 'origin/master' into feature/is_in_intersection
+  * Merge remote-tracking branch 'origin/master' into feature/is_in_intersection
+  * Contributors: Masaya Kataoka
+
+ -- Masaya Kataoka <masaya.kataoka@tier4.jp>  Thu, 19 Dec 2024 16:00:00 -0000
+
+ros-humble-do-nothing-plugin (7.3.3-0jammy) jammy; urgency=high
+
+
+
+ -- Masaya Kataoka <masaya.kataoka@tier4.jp>  Tue, 17 Dec 2024 16:00:00 -0000
+
+ros-humble-do-nothing-plugin (7.3.2-0jammy) jammy; urgency=high
+
+
+
+ -- Masaya Kataoka <masaya.kataoka@tier4.jp>  Tue, 17 Dec 2024 16:00:00 -0000
+
+ros-humble-do-nothing-plugin (7.3.1-0jammy) jammy; urgency=high
+
+  * Merge branch 'master' into fix/math-closest-point
+  * Merge branch 'master' into fix/math-closest-point
+  * Merge branch 'master' into fix/math-closest-point
+  * Merge branch 'master' into fix/math-closest-point
+  * Merge branch 'master' into fix/math-closest-point
+  * Contributors: Kotaro Yoshimoto
+
+ -- Masaya Kataoka <masaya.kataoka@tier4.jp>  Mon, 16 Dec 2024 16:00:00 -0000
+
+ros-humble-do-nothing-plugin (7.3.0-0jammy) jammy; urgency=high
+
+  * Merge branch 'master' into feature/multi-level-lanelet-support
+  * Merge branch 'master' into feature/multi-level-lanelet-support
+  * Merge branch 'master' into feature/multi-level-lanelet-support
+  * Merge branch 'master' into feature/multi-level-lanelet-support
+  * Merge branch 'master' into feature/multi-level-lanelet-support
+  * Contributors: Kotaro Yoshimoto, SzymonParapura
+
+ -- Masaya Kataoka <masaya.kataoka@tier4.jp>  Sun, 15 Dec 2024 16:00:00 -0000
+
+ros-humble-do-nothing-plugin (7.2.0-0jammy) jammy; urgency=high
+
+  * Merge branch 'master' into RJD-736/autoware_msgs_support_and_localization_sim_mode_support
+  * Merge remote-tracking branch 'origin/master' into RJD-736/autoware_msgs_support_and_localization_sim_mode_support
+  * Merge branch 'master' into RJD-736/autoware_msgs_support_and_localization_sim_mode_support
+  * Merge branch 'master' into RJD-736/autoware_msgs_support_and_localization_sim_mode_support
+  * Merge branch 'master' into RJD-736/autoware_msgs_support_and_localization_sim_mode_support
+  * Merge remote-tracking branch 'origin/master' into RJD-736/autoware_msgs_support_and_localization_sim_mode_support
+  * Merge remote-tracking branch 'origin/RJD-736/autoware_msgs_support' into RJD-736/autoware_msgs_support_and_localization_sim_mode_support
+  * Merge remote-tracking branch 'origin/RJD-736/autoware_msgs_support' into RJD-736/autoware_msgs_support_and_localization_sim_mode_support
+  * Merge remote-tracking branch 'origin/RJD-736/autoware_msgs_support' into RJD-736/autoware_msgs_support_and_localization_sim_mode_support
+  * Merge remote-tracking branch 'origin/RJD-736/autoware_msgs_support' into RJD-736/autoware_msgs_support_and_localization_sim_mode_support
+  * Merge remote-tracking branch 'origin/RJD-736/autoware_msgs_support' into RJD-736/autoware_msgs_support_and_localization_sim_mode_support
+  * Contributors: Tatsuya Yamasaki, yamacir-kit
+
+ -- Masaya Kataoka <masaya.kataoka@tier4.jp>  Sun, 15 Dec 2024 16:00:00 -0000
+
+ros-humble-do-nothing-plugin (7.1.0-0jammy) jammy; urgency=high
+
+  * Merge remote-tracking branch 'origin/master' into feature/time-to-collision-condition
+  * Merge branch 'master' into feature/time-to-collision-condition
+  * Merge remote-tracking branch 'origin/master' into feature/time-to-collision-condition
+  * Merge branch 'master' into feature/time-to-collision-condition
+  * Merge remote-tracking branch 'origin/master' into feature/time-to-collision-condition
+  * Merge remote-tracking branch 'origin/master' into feature/time-to-collision-condition
+  * Merge remote-tracking branch 'origin/master' into feature/time-to-collision-condition
+  * Merge remote-tracking branch 'origin/master' into feature/time-to-collision-condition
+  * Merge remote-tracking branch 'origin/master' into feature/time-to-collision-condition
+  * Merge branch 'master' into feature/time-to-collision-condition
+  * Merge remote-tracking branch 'origin/master' into feature/time-to-collision-condition
+  * Merge branch 'master' into feature/time-to-collision-condition
+  * Merge branch 'master' into feature/time-to-collision-condition
+  * Merge branch 'master' into feature/time-to-collision-condition
+  * Merge branch 'master' into feature/time-to-collision-condition
+  * Merge branch 'master' into feature/time-to-collision-condition
+  * Merge branch 'master' into feature/time-to-collision-condition
+  * Merge branch 'master' into feature/time-to-collision-condition
+  * Merge branch 'master' into feature/time-to-collision-condition
+  * Merge branch 'master' into feature/time-to-collision-condition
+  * Merge branch 'master' into feature/time-to-collision-condition
+  * Merge branch 'master' into feature/time-to-collision-condition
+  * Merge branch 'master' into feature/time-to-collision-condition
+  * Merge branch 'master' into feature/time-to-collision-condition
+  * Merge branch 'master' into feature/time-to-collision-condition
+  * Merge remote-tracking branch 'origin/master' into feature/time-to-collision-condition
+  * Merge branch 'master' into feature/time-to-collision-condition
+  * Merge remote-tracking branch 'origin/master' into feature/time-to-collision-condition
+  * Merge branch 'master' into feature/time-to-collision-condition
+  * Merge branch 'master' into feature/time-to-collision-condition
+  * Merge branch 'master' into feature/time-to-collision-condition
+  * Merge branch 'master' into feature/time-to-collision-condition
+  * Merge branch 'master' into feature/time-to-collision-condition
+  * Merge remote-tracking branch 'origin/master' into feature/time-to-collision-condition
+  * Merge branch 'master' into feature/time-to-collision-condition
+  * Merge remote-tracking branch 'origin/master' into feature/time-to-collision-condition
+  * Contributors: Tatsuya Yamasaki, yamacir-kit
+
+ -- Masaya Kataoka <masaya.kataoka@tier4.jp>  Sun, 15 Dec 2024 16:00:00 -0000
+
+ros-humble-do-nothing-plugin (7.0.4-0jammy) jammy; urgency=high
+
+  * Merge branch 'master' into fix/speed-condition/backward-compatibility
+  * Merge remote-tracking branch 'origin/master' into fix/speed-condition/backward-compatibility
+  * Contributors: Tatsuya Yamasaki, yamacir-kit
+
+ -- Masaya Kataoka <masaya.kataoka@tier4.jp>  Thu, 12 Dec 2024 16:00:00 -0000
+
+ros-humble-do-nothing-plugin (7.0.3-0jammy) jammy; urgency=high
+
+  * Merge branch 'master' into fix/request-enable-autoware-control
+  * Merge branch 'master' into fix/request-enable-autoware-control
+  * Merge branch 'master' into fix/request-enable-autoware-control
+  * Merge branch 'master' into fix/request-enable-autoware-control
+  * Contributors: Kotaro Yoshimoto
+
+ -- Masaya Kataoka <masaya.kataoka@tier4.jp>  Thu, 12 Dec 2024 16:00:00 -0000
+
+ros-humble-do-nothing-plugin (7.0.2-0jammy) jammy; urgency=high
+
+  * Merge branch 'master' into fix/snor-cloud-issue-8-1
+  * Merge branch 'master' into fix/snor-cloud-issue-8-1
+  * Merge branch 'master' into fix/snor-cloud-issue-8-1
+  * Merge branch 'master' into fix/snor-cloud-issue-8-1
+  * Contributors: Masaya Kataoka, Taiga
+
+ -- Masaya Kataoka <masaya.kataoka@tier4.jp>  Wed, 11 Dec 2024 16:00:00 -0000
+
+ros-humble-do-nothing-plugin (7.0.1-0jammy) jammy; urgency=high
+
+  * Merge branch 'master' into feature/act-starttrigger-optional
+  * Merge branch 'master' into feature/act-starttrigger-optional
+  * Contributors: Kotaro Yoshimoto, ぐるぐる
+
+ -- Masaya Kataoka <masaya.kataoka@tier4.jp>  Tue, 10 Dec 2024 16:00:00 -0000
+
+ros-humble-do-nothing-plugin (7.0.0-0jammy) jammy; urgency=high
+
+  * Merge remote-tracking branch 'origin/master' into RJD-736/autoware_msgs_support
+  * Merge remote-tracking branch 'origin/master' into RJD-736/autoware_msgs_support
+  * Merge branch 'master' into RJD-736/autoware_msgs_support
+  * Merge remote-tracking branch 'origin/master' into RJD-736/autoware_msgs_support
+  * Merge remote-tracking branch 'origin/master' into RJD-736/autoware_msgs_support
+  * Merge remote-tracking branch 'origin/master' into RJD-736/autoware_msgs_support
+    # Conflicts:
+    #     simulation/traffic_simulator/src/traffic_lights/traffic_light_publisher.cpp
+  * Merge remote-tracking branch 'origin/master' into RJD-736/autoware_msgs_support
+  * Merge remote-tracking branch 'origin/master' into RJD-736/autoware_msgs_support
+  * Merge remote-tracking branch 'origin/master' into RJD-736/autoware_msgs_support
+  * Merge remote-tracking branch 'origin/master' into RJD-736/autoware_msgs_support
+  * Merge remote-tracking branch 'origin/master' into RJD-736/autoware_msgs_support
+  * Merge remote-tracking branch 'origin/master' into RJD-736/autoware_msgs_support
+    # Conflicts:
+    #     external/concealer/include/concealer/autoware.hpp
+    #     external/concealer/include/concealer/autoware_universe.hpp
+    #     external/concealer/include/concealer/field_operator_application_for_autoware_universe.hpp
+    #     external/concealer/src/autoware_universe.cpp
+    #     external/concealer/src/field_operator_application_for_autoware_universe.cpp
+  * Merge branch 'master' into RJD-736/autoware_msgs_support
+  * Merge branch 'master' into RJD-736/autoware_msgs_support
+  * Merge branch 'master' into RJD-736/autoware_msgs_support
+  * Merge branch 'master' into RJD-736/autoware_msgs_support
+  * Merge branch 'master' into RJD-736/autoware_msgs_support
+  * Merge branch 'master' into RJD-736/autoware_msgs_support
+  * Merge remote-tracking branch 'origin/master' into RJD-736/autoware_msgs_support
+  * Merge remote-tracking branch 'origin/master' into RJD-736/autoware_msgs_support
+  * Merge remote-tracking branch 'origin/master' into RJD-736/autoware_msgs_support
+  * Merge branch 'master' into RJD-736/autoware_msgs_support
+  * Merge branch 'master' into RJD-736/autoware_msgs_support
+  * Merge remote-tracking branch 'origin' into RJD-736/autoware_msgs_support
+  * Merge remote-tracking branch 'origin/master' into RJD-736/autoware_msgs_support
+  * Merge remote-tracking branch 'origin/master' into RJD-736/autoware_msgs_support
+  * Merge remote-tracking branch 'origin/master' into RJD-736/autoware_msgs_support
+  * Merge remote-tracking branch 'origin/master' into RJD-736/autoware_msgs_support
+  * Merge remote-tracking branch 'origin/master' into RJD-736/autoware_msgs_support
+  * Merge remote-tracking branch 'origin/master' into RJD-736/autoware_msgs_support
+  * Merge remote-tracking branch 'origin/master' into RJD-736/autoware_msgs_support
+  * Merge remote-tracking branch 'origin/feature/manual_on_follow_trajectory' into feature/manual_on_follow_trajectory_not_auto
+    # Conflicts:
+    #     simulation/traffic_simulator/include/traffic_simulator/entity/entity_manager.hpp
+  * Merge remote-tracking branch 'origin/master' into RJD-736/autoware_msgs_support
+  * Merge remote-tracking branch 'origin/master' into RJD-736/autoware_msgs_support
+  * Merge remote-tracking branch 'origin/master' into RJD-736/autoware_msgs_support
+  * Merge remote-tracking branch 'origin/master' into RJD-736/autoware_msgs_support
+  * Merge remote-tracking branch 'origin/master' into RJD-736/autoware_msgs_support
+  * Merge remote-tracking branch 'origin/master' into RJD-736/autoware_msgs_support
+  * Merge remote-tracking branch 'origin/master' into RJD-736/autoware_msgs_support
+  * Merge remote-tracking branch 'origin/master' into RJD-736/autoware_msgs_support
+  * Merge remote-tracking branch 'origin/master' into RJD-736/autoware_msgs_support
+  * Contributors: Kotaro Yoshimoto, Masaya Kataoka, Michał Kiełczykowski
+
+ -- Masaya Kataoka <masaya.kataoka@tier4.jp>  Mon, 09 Dec 2024 16:00:00 -0000
+
+ros-humble-do-nothing-plugin (6.3.1-0jammy) jammy; urgency=high
+
+  * Merge branch 'master' into fix/sonor-cloud-issue-8-3
+  * Merge branch 'master' into fix/sonor-cloud-issue-8-3
+  * Contributors: Masaya Kataoka
+
+ -- Masaya Kataoka <masaya.kataoka@tier4.jp>  Mon, 09 Dec 2024 16:00:00 -0000
+
+ros-humble-do-nothing-plugin (6.3.0-0jammy) jammy; urgency=high
+
+  * Merge branch 'master' into feature/lane-change-everywhere
+  * Merge remote-tracking branch 'origin/master' into feature/lane-change-everywhere
+  * Merge remote-tracking branch 'origin/master' into feature/lane-change-everywhere
+  * Contributors: Kotaro Yoshimoto
+
+ -- Masaya Kataoka <masaya.kataoka@tier4.jp>  Mon, 09 Dec 2024 16:00:00 -0000
+
+ros-humble-do-nothing-plugin (6.2.5-0jammy) jammy; urgency=high
+
+  * Merge branch 'master' into fix/acc_by_slope
+  * Contributors: Kotaro Yoshimoto
+
+ -- Masaya Kataoka <masaya.kataoka@tier4.jp>  Sun, 08 Dec 2024 16:00:00 -0000
+
+ros-humble-do-nothing-plugin (6.2.4-0jammy) jammy; urgency=high
+
+  * Merge branch 'master' into refactor/speed-condition
+  * Merge branch 'master' into refactor/speed-condition
+  * Contributors: Tatsuya Yamasaki
+
+ -- Masaya Kataoka <masaya.kataoka@tier4.jp>  Sun, 08 Dec 2024 16:00:00 -0000
+
+ros-humble-do-nothing-plugin (6.2.3-0jammy) jammy; urgency=high
+
+  * Merge branch 'master' into fix/sonor-cloud-issue-8-2
+  * Contributors: Masaya Kataoka
+
+ -- Masaya Kataoka <masaya.kataoka@tier4.jp>  Wed, 04 Dec 2024 16:00:00 -0000
+
+ros-humble-do-nothing-plugin (6.2.2-0jammy) jammy; urgency=high
+
+  * Merge branch 'master' into refactor/distance-condition
+  * Merge remote-tracking branch 'origin/master' into refactor/distance-condition
+  * Contributors: Tatsuya Yamasaki, yamacir-kit
+
+ -- Masaya Kataoka <masaya.kataoka@tier4.jp>  Tue, 03 Dec 2024 16:00:00 -0000
+
+ros-humble-do-nothing-plugin (6.2.1-0jammy) jammy; urgency=high
+
+  * Merge branch 'master' into refactor/distance-condition-and-relative-distance-condition
+  * Contributors: Tatsuya Yamasaki
+
+ -- Masaya Kataoka <masaya.kataoka@tier4.jp>  Mon, 02 Dec 2024 16:00:00 -0000
+
+ros-humble-do-nothing-plugin (6.2.0-0jammy) jammy; urgency=high
+
+  * Merge branch 'master' into feature/relative-speed-condition
+  * Merge remote-tracking branch 'origin/master' into feature/relative-speed-condition
+  * Merge remote-tracking branch 'origin/master' into feature/relative-speed-condition
+  * Merge remote-tracking branch 'origin/master' into feature/relative-speed-condition
+  * Merge remote-tracking branch 'origin/master' into feature/relative-speed-condition
+  * Contributors: Tatsuya Yamasaki, yamacir-kit
+
+ -- Masaya Kataoka <masaya.kataoka@tier4.jp>  Sun, 01 Dec 2024 16:00:00 -0000
+
+ros-humble-do-nothing-plugin (6.1.3-0jammy) jammy; urgency=high
+
+  * Merge branch 'master' into RJD-1057-traffic-lights-tests
+  * Merge branch 'master' into RJD-1057-traffic-lights-tests
+  * Merge branch 'master' into RJD-1057-traffic-lights-tests
+  * Merge branch 'master' into RJD-1057-traffic-lights-tests
+  * Merge branch 'master' into RJD-1057-traffic-lights-tests
+  * Merge branch 'master' into RJD-1057-traffic-lights-tests
+  * Merge branch 'master' into RJD-1057-traffic-lights-tests
+  * Merge remote-tracking branch 'tier4/RJD-1057-traffic-lights-tests' into RJD-1057-traffic-lights-tests
+  * Merge branch 'master' into RJD-1057-traffic-lights-tests
+  * Merge remote-tracking branch 'tier4/master' into RJD-1057-traffic-lights-tests
+  * Merge branch 'master' into RJD-1057-traffic-lights-tests
+  * Merge remote-tracking branch 'tier4/RJD-1057-remove-traffic-lights-from-entity-manager' into RJD-1057-traffic-lights-tests
+  * Merge branch 'RJD-1057-remove-traffic-lights-from-entity-manager' into RJD-1057-traffic-lights-tests
+  * Merge branch 'RJD-1057-remove-traffic-lights-from-entity-manager' into RJD-1057-traffic-lights-tests
+  * Merge branch 'RJD-1057-remove-traffic-lights-from-entity-manager' into RJD-1057-traffic-lights-tests
+  * Contributors: Dawid Moszyński, Kotaro Yoshimoto, Mateusz Palczuk, Tatsuya Yamasaki
+
+ -- Masaya Kataoka <masaya.kataoka@tier4.jp>  Thu, 28 Nov 2024 16:00:00 -0000
+
+ros-humble-do-nothing-plugin (6.1.2-0jammy) jammy; urgency=high
+
+  * Merge branch 'master' into refactor/interpreter
+  * Contributors: Tatsuya Yamasaki
+
+ -- Masaya Kataoka <masaya.kataoka@tier4.jp>  Thu, 28 Nov 2024 16:00:00 -0000
+
+ros-humble-do-nothing-plugin (6.1.1-0jammy) jammy; urgency=high
+
+  * Merge branch 'master' of https://github.com/tier4/scenario_simulator_v2 into fix/sonarcloud_warning
+  * Merge branch 'master' into fix/sonarcloud_warning
+  * Merge branch 'master' into fix/sonarcloud_warning
+  * Contributors: Masaya Kataoka
+
+ -- Masaya Kataoka <masaya.kataoka@tier4.jp>  Thu, 28 Nov 2024 16:00:00 -0000
+
+ros-humble-do-nothing-plugin (6.1.0-0jammy) jammy; urgency=high
+
+
+
+ -- Masaya Kataoka <masaya.kataoka@tier4.jp>  Thu, 28 Nov 2024 16:00:00 -0000
+
+ros-humble-do-nothing-plugin (6.0.1-0jammy) jammy; urgency=high
+
+
+
+ -- Masaya Kataoka <masaya.kataoka@tier4.jp>  Tue, 26 Nov 2024 16:00:00 -0000
+
+ros-humble-do-nothing-plugin (6.0.0-0jammy) jammy; urgency=high
+
+  * Merge branch 'master' into refactor/add_routing_graph_argument
+  * Merge branch 'master' into refactor/add_routing_graph_argument
+  * Contributors: Kotaro Yoshimoto
+
+ -- Masaya Kataoka <masaya.kataoka@tier4.jp>  Tue, 26 Nov 2024 16:00:00 -0000
+
+ros-humble-do-nothing-plugin (5.5.0-0jammy) jammy; urgency=high
+
+
+
+ -- Masaya Kataoka <masaya.kataoka@tier4.jp>  Tue, 26 Nov 2024 16:00:00 -0000
+
+ros-humble-do-nothing-plugin (5.4.0-0jammy) jammy; urgency=high
+
+  * Merge branch 'master' into feature/shoulder_routing_graph
+  * Contributors: Kotaro Yoshimoto
+
+ -- Masaya Kataoka <masaya.kataoka@tier4.jp>  Mon, 25 Nov 2024 16:00:00 -0000
+
+ros-humble-do-nothing-plugin (5.3.4-0jammy) jammy; urgency=high
+
+  * Merge branch 'master' into fix/find_nearest_segment_index
+  * Contributors: Kotaro Yoshimoto
+
+ -- Masaya Kataoka <masaya.kataoka@tier4.jp>  Wed, 20 Nov 2024 16:00:00 -0000
+
+ros-humble-do-nothing-plugin (5.3.3-0jammy) jammy; urgency=high
+
+  * Merge branch 'master' into fix/sonor-cloud-issue-7
+  * Contributors: Masaya Kataoka
+
+ -- Masaya Kataoka <masaya.kataoka@tier4.jp>  Wed, 20 Nov 2024 16:00:00 -0000
+
+ros-humble-do-nothing-plugin (5.3.2-0jammy) jammy; urgency=high
+
+  * Merge branch 'master' into fix/interpreter/assign-route-action
+  * Merge branch 'master' into fix/interpreter/assign-route-action
+  * Contributors: Tatsuya Yamasaki
+
+ -- Masaya Kataoka <masaya.kataoka@tier4.jp>  Sun, 17 Nov 2024 16:00:00 -0000
+
+ros-humble-do-nothing-plugin (5.3.1-0jammy) jammy; urgency=high
+
+  * Merge branch 'master' into refactor/routing_graph
+  * Merge branch 'master' into refactor/routing_graph
+  * Contributors: Kotaro Yoshimoto
+
+ -- Masaya Kataoka <masaya.kataoka@tier4.jp>  Sun, 17 Nov 2024 16:00:00 -0000
+
+ros-humble-do-nothing-plugin (5.3.0-0jammy) jammy; urgency=high
+
+  * Merge branch 'master' into feature/manual_on_follow_trajectory_with_new_state
+  * Merge branch 'master' into feature/manual_on_follow_trajectory_with_new_state
+  * Merge branch 'master' into feature/manual_on_follow_trajectory_with_new_state
+  * Merge branch 'master' into feature/manual_on_follow_trajectory_with_new_state
+  * Merge remote-tracking branch 'origin/master' into feature/manual_on_follow_trajectory_with_new_state
+  * Merge remote-tracking branch 'origin/master' into feature/manual_on_follow_trajectory_with_new_state
+  * Merge branch 'master' into feature/manual_on_follow_trajectory
+  * Merge remote-tracking branch 'origin/master' into feature/manual_on_follow_trajectory
+  * Merge branch 'master' into feature/manual_on_follow_trajectory
+  * Merge branch 'master' into feature/manual_on_follow_trajectory
+  * Merge branch 'master' into feature/manual_on_follow_trajectory
+  * Merge branch 'master' into feature/manual_on_follow_trajectory
+  * Merge remote-tracking branch 'origin/feature/manual_on_follow_trajectory' into feature/manual_on_follow_trajectory
+  * Merge branch 'master' into feature/manual_on_follow_trajectory
+  * Merge branch 'master' into feature/manual_on_follow_trajectory
+  * Merge branch 'master' into feature/manual_on_follow_trajectory
+  * Merge branch 'master' into feature/manual_on_follow_trajectory
+  * Merge remote-tracking branch 'origin/master' into feature/manual_on_follow_trajectory
+  * Contributors: Kotaro Yoshimoto, Tatsuya Yamasaki
+
+ -- Masaya Kataoka <masaya.kataoka@tier4.jp>  Sun, 17 Nov 2024 16:00:00 -0000
+
+ros-humble-do-nothing-plugin (5.2.3-0jammy) jammy; urgency=high
+
+
+
+ -- Masaya Kataoka <masaya.kataoka@tier4.jp>  Sun, 17 Nov 2024 16:00:00 -0000
+
+ros-humble-do-nothing-plugin (5.2.2-0jammy) jammy; urgency=high
+
+  * Merge branch 'master' into fix/sonor-cloud-issue-6
+  * Contributors: Taiga
+
+ -- Masaya Kataoka <masaya.kataoka@tier4.jp>  Thu, 14 Nov 2024 16:00:00 -0000
+
+ros-humble-do-nothing-plugin (5.2.1-0jammy) jammy; urgency=high
+
+  * Merge branch 'master' into RJD-1333/previous_following_lanelets
+  * Merge branch 'master' into RJD-1333/previous_following_lanelets
+  * Merge branch 'master' into RJD-1333/previous_following_lanelets
+  * Contributors: Grzegorz Maj
+
+ -- Masaya Kataoka <masaya.kataoka@tier4.jp>  Wed, 13 Nov 2024 16:00:00 -0000
+
+ros-humble-do-nothing-plugin (5.2.0-0jammy) jammy; urgency=high
+
+  * Merge branch 'master' into feature/by_object_type
+  * Merge branch 'master' into feature/by_object_type
+  * Merge branch 'master' into feature/by_object_type
+  * Merge branch 'master' into feature/by_object_type
+  * Contributors: Tatsuya Yamasaki
+
+ -- Masaya Kataoka <masaya.kataoka@tier4.jp>  Wed, 13 Nov 2024 16:00:00 -0000
+
+ros-humble-do-nothing-plugin (5.1.1-0jammy) jammy; urgency=high
+
+  * Merge branch 'master' into fix/sonor-cloud-issue-5
+  * Merge branch 'master' into fix/sonor-cloud-issue-5
+  * Merge branch 'master' into fix/sonor-cloud-issue-5
+  * Contributors: Masaya Kataoka, Taiga
+
+ -- Masaya Kataoka <masaya.kataoka@tier4.jp>  Tue, 12 Nov 2024 16:00:00 -0000
+
+ros-humble-do-nothing-plugin (5.1.0-0jammy) jammy; urgency=high
+
+  * Merge branch 'master' into feature/traffic_light_group
+  * Merge remote-tracking branch 'origin/master' into feature/traffic_light_group
+    # Conflicts:
+    #     simulation/simple_sensor_simulator/include/simple_sensor_simulator/sensor_simulation/sensor_simulation.hpp
+    #     simulation/traffic_simulator/include/traffic_simulator/entity/entity_manager.hpp
+    #     simulation/traffic_simulator/src/traffic_lights/traffic_light_publisher.cpp
+  * Merge branch 'master' into feature/traffic_light_group
+  * Merge branch 'master' into feature/traffic_light_group
+  * Merge branch 'master' into feature/traffic_light_group
+  * Merge branch 'master' into feature/traffic_light_group
+  * Merge branch 'master' into feature/traffic_light_group
+  * Merge branch 'master' into feature/traffic_light_group
+  * Contributors: Kotaro Yoshimoto
+
+ -- Masaya Kataoka <masaya.kataoka@tier4.jp>  Mon, 11 Nov 2024 16:00:00 -0000
+
+ros-humble-do-nothing-plugin (5.0.2-0jammy) jammy; urgency=high
+
+  * Merge branch 'master' into fix/sonor-cloud-issue
+  * Merge branch 'master' into fix/sonor-cloud-issue
+  * Contributors: Masaya Kataoka, Taiga
+
+ -- Masaya Kataoka <masaya.kataoka@tier4.jp>  Sun, 10 Nov 2024 16:00:00 -0000
+
+ros-humble-do-nothing-plugin (5.0.1-0jammy) jammy; urgency=high
+
+
+
+ -- Masaya Kataoka <masaya.kataoka@tier4.jp>  Sun, 10 Nov 2024 16:00:00 -0000
+
+ros-humble-do-nothing-plugin (5.0.0-0jammy) jammy; urgency=high
+
+  * Merge pull request #1406 <https://github.com/tier4/scenario_simulator_v2/issues/1406> from tier4/RJD-1057-remove-traffic-lights-from-entity-manager
+    RJD-1057 (1/5): Remove non-API member functions: EntityManager’s TrafficLight related member functions
+  * Merge remote-tracking branch 'tier4/master' into RJD-1057-remove-traffic-lights-from-entity-manager
+  * Merge branch 'master' into RJD-1057-remove-traffic-lights-from-entity-manager
+  * Merge branch 'master' into RJD-1057-remove-traffic-lights-from-entity-manager
+  * Merge branch 'master' into RJD-1057-remove-traffic-lights-from-entity-manager
+  * Merge branch 'master' into RJD-1057-remove-traffic-lights-from-entity-manager
+  * Merge remote-tracking branch 'tier4/master' into RJD-1057-remove-traffic-lights-from-entity-manager
+  * Merge branch 'RJD-1057-base' into RJD-1057-remove-traffic-lights-from-entity-manager
+  * Merge branch 'RJD-1057-base' into RJD-1057-remove-traffic-lights-from-entity-manager
+  * Merge branch 'RJD-1057-base' into RJD-1057-remove-traffic-lights-from-entity-manager
+  * feat(traffic_lights): use conversions instead operator() overlaod, remove overloads, improve publisher
+  * feat(traffic_light_manager): use TrafficLightsBase and TrafficLights instead of TrafficLightsManager/Supervisor
+  * Merge branch 'RJD-1057-base' into RJD-1057-remove-traffic-lights-from-entity-manager
+  * Contributors: Dawid Moszynski, Dawid Moszyński, Kotaro Yoshimoto, Mateusz Palczuk, Tatsuya Yamasaki
+
+ -- Masaya Kataoka <masaya.kataoka@tier4.jp>  Thu, 07 Nov 2024 16:00:00 -0000
+
+ros-humble-do-nothing-plugin (4.5.0-0jammy) jammy; urgency=high
+
+  * Merge branch 'master' into chore/extend-npc-matching-distance
+  * Merge branch 'master' into chore/extend-npc-matching-distance
+  * Contributors: Kotaro Yoshimoto
+
+ -- Masaya Kataoka <masaya.kataoka@tier4.jp>  Wed, 06 Nov 2024 16:00:00 -0000
+
+ros-humble-do-nothing-plugin (4.4.1-0jammy) jammy; urgency=high
+
+  * Merge branch 'master' into RJD-1336/fix_request_speed_change
+  * Merge branch 'master' into RJD-1336/fix_request_speed_change
+  * Merge branch 'RJD-1336/fix_request_speed_change' of github.com:tier4/scenario_simulator_v2 into RJD-1336/fix_request_speed_change
+  * Merge branch 'master' into RJD-1336/fix_request_speed_change
+  * Merge branch 'master' into RJD-1336/fix_request_speed_change
+  * Contributors: Michał Ciasnocha, robomic
+
+ -- Masaya Kataoka <masaya.kataoka@tier4.jp>  Wed, 06 Nov 2024 16:00:00 -0000
+
+ros-humble-do-nothing-plugin (4.4.0-0jammy) jammy; urgency=high
+
+  * Merge branch 'master' into fix/longitudinal_distance
+  * Merge branch 'master' into fix/longitudinal_distance
+  * Merge branch 'master' into fix/longitudinal_distance
+  * Merge branch 'master' into fix/longitudinal_distance
+  * Merge branch 'fix/longitudinal_distance' of github.com:tier4/scenario_simulator_v2 into fix/longitudinal_distance
+  * Merge branch 'master' into fix/longitudinal_distance
+  * Merge branch 'fix/longitudinal_distance' of github.com:tier4/scenario_simulator_v2 into fix/longitudinal_distance
+  * Merge branch 'master' into fix/longitudinal_distance
+  * Contributors: Masaya Kataoka, Michał Ciasnocha, robomic
+
+ -- Masaya Kataoka <masaya.kataoka@tier4.jp>  Wed, 06 Nov 2024 16:00:00 -0000
+
+ros-humble-do-nothing-plugin (4.3.27-0jammy) jammy; urgency=high
+
+  * Merge pull request #1438 <https://github.com/tier4/scenario_simulator_v2/issues/1438> from tier4/fix/add_comment_for_empty_function
+    Add comment for empty functions.
+  * fix problem about https://sonarcloud.io/project/issues?open=AZINWTGyjvEq9OQMnL_U&id=tier4_scenario_simulator_v2
+  * Contributors: Masaya Kataoka
+
+ -- Masaya Kataoka <masaya.kataoka@tier4.jp>  Wed, 06 Nov 2024 16:00:00 -0000
+
+ros-humble-do-nothing-plugin (4.3.26-0jammy) jammy; urgency=high
+
+
+
+ -- Masaya Kataoka <masaya.kataoka@tier4.jp>  Tue, 05 Nov 2024 16:00:00 -0000
+
+ros-humble-do-nothing-plugin (4.3.25-0jammy) jammy; urgency=high
+
+
+
+ -- Masaya Kataoka <masaya.kataoka@tier4.jp>  Mon, 04 Nov 2024 16:00:00 -0000
+
+ros-humble-do-nothing-plugin (4.3.24-0jammy) jammy; urgency=high
+
+  * Merge branch 'master' into fix/remove-topic-logic
+  * Merge branch 'master' into fix/remove-topic-logic
+  * Contributors: Masaya Kataoka
+
+ -- Masaya Kataoka <masaya.kataoka@tier4.jp>  Thu, 31 Oct 2024 16:00:00 -0000
+
+ros-humble-do-nothing-plugin (4.3.23-0jammy) jammy; urgency=high
+
+
+
+ -- Masaya Kataoka <masaya.kataoka@tier4.jp>  Thu, 31 Oct 2024 16:00:00 -0000
+
+ros-humble-do-nothing-plugin (4.3.22-0jammy) jammy; urgency=high
+
+  * Merge branch 'master' into fix/improved-readability
+  * Contributors: Masaya Kataoka
+
+ -- Masaya Kataoka <masaya.kataoka@tier4.jp>  Wed, 30 Oct 2024 16:00:00 -0000
+
+ros-humble-do-nothing-plugin (4.3.21-0jammy) jammy; urgency=high
+
+  * Merge branch 'master' into RJD-1337/getQuadraticAccelerationDuration
+  * Merge branch 'master' into RJD-1337/getQuadraticAccelerationDuration
+  * Merge branch 'master' into RJD-1337/getQuadraticAccelerationDuration
+  * Merge branch 'master' into RJD-1337/getQuadraticAccelerationDuration
+  * Contributors: Grzegorz Maj, Masaya Kataoka
+
+ -- Masaya Kataoka <masaya.kataoka@tier4.jp>  Wed, 30 Oct 2024 16:00:00 -0000
+
+ros-humble-do-nothing-plugin (4.3.20-0jammy) jammy; urgency=high
+
+  * Merge branch 'master' into RJD-1335/requestSpeedChange
+  * Contributors: Grzegorz Maj
+
+ -- Masaya Kataoka <masaya.kataoka@tier4.jp>  Wed, 30 Oct 2024 16:00:00 -0000
+
+ros-humble-do-nothing-plugin (4.3.19-0jammy) jammy; urgency=high
+
+
+
+ -- Masaya Kataoka <masaya.kataoka@tier4.jp>  Tue, 29 Oct 2024 16:00:00 -0000
+
+ros-humble-do-nothing-plugin (4.3.18-0jammy) jammy; urgency=high
+
+  * Merge branch 'master' into feature/json/boost-json
+  * Merge branch 'master' into feature/json/boost-json
+  * Merge remote-tracking branch 'origin/master' into feature/json/boost-json
+  * Contributors: Kotaro Yoshimoto, f0reachARR, ぐるぐる
+
+ -- Masaya Kataoka <masaya.kataoka@tier4.jp>  Thu, 17 Oct 2024 16:00:00 -0000
+
+ros-humble-do-nothing-plugin (4.3.17-0jammy) jammy; urgency=high
+
+  * Merge branch 'master' into fix/remove_warnings_from_sonarcloud
+  * Merge branch 'master' of https://github.com/tier4/scenario_simulator_v2 into fix/remove_warnings_from_sonarcloud
+  * Contributors: Masaya Kataoka
+
+ -- Masaya Kataoka <masaya.kataoka@tier4.jp>  Wed, 16 Oct 2024 16:00:00 -0000
+
+ros-humble-do-nothing-plugin (4.3.16-0jammy) jammy; urgency=high
+
+
+
+ -- Masaya Kataoka <masaya.kataoka@tier4.jp>  Mon, 14 Oct 2024 16:00:00 -0000
+
+ros-humble-do-nothing-plugin (4.3.15-0jammy) jammy; urgency=high
+
+  * Merge branch 'master' into feature/faster-compilation
+  * Merge remote-tracking branch 'origin/master' into feature/faster-compilation
+  * Merge branch 'master' into fix/RJD-1296-fix-random001-ego-issue
+  * Merge branch 'master' into fix/RJD-1296-fix-random001-ego-issue
+  * Merge branch 'master' into fix/RJD-1296-fix-random001-ego-issue
+  * Merge remote-tracking branch 'origin/master' into feature/faster-compilation
+  * Merge branch 'master' into feature/faster-compilation
+  * Merge branch 'master' into fix/RJD-1296-fix-random001-ego-issue
+  * Merge branch 'master' into fix/RJD-1296-fix-random001-ego-issue
+  * Merge remote-tracking branch 'origin/master' into feature/faster-compilation
+  * Merge branch 'master' into fix/RJD-1296-fix-random001-ego-issue
+  * Merge remote-tracking branch 'origin/master' into feature/faster-compilation
+  * Merge remote-tracking branch 'origin/master' into feature/faster-compilation
+  * Contributors: Dawid Moszyński, Shota Minami
+
+ -- Masaya Kataoka <masaya.kataoka@tier4.jp>  Wed, 09 Oct 2024 16:00:00 -0000
+
+ros-humble-do-nothing-plugin (4.3.14-0jammy) jammy; urgency=high
+
+  * Merge branch 'master' of https://github.com/tier4/scenario_simulator_v2 into feature/joblist-update-stand-still-duration
+  * Merge branch 'master' into feature/joblist-update-stand-still-duration
+  * Contributors: Masaya Kataoka
+
+ -- Masaya Kataoka <masaya.kataoka@tier4.jp>  Wed, 09 Oct 2024 16:00:00 -0000
+
 ros-humble-do-nothing-plugin (4.3.13-0jammy) jammy; urgency=high
 
   * Merge branch 'master' into feature/use-autoware-state

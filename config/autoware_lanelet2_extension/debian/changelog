@@ -1,3 +1,11 @@
+ros-humble-autoware-lanelet2-extension (0.6.2-0jammy) jammy; urgency=high
+
+  * fix: update the github link of map_loader (#31 <https://github.com/autowarefoundation/autoware_lanelet2_extension/issues/31>)
+    add autoware prefix to map_loader
+  * Contributors: Masaki Baba
+
+ -- mitsudome-r <ryohsuke.mitsudome@tier4.jp>  Wed, 20 Nov 2024 16:00:00 -0000
+
 ros-humble-autoware-lanelet2-extension (0.6.1-0jammy) jammy; urgency=high
 
   * feat(lanelet2_extension): add util/visualization of BusStopArea (#28 <https://github.com/autowarefoundation/autoware_lanelet2_extension/issues/28>)
