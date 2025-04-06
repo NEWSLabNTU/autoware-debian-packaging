@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 
+cd "$colcon_work_dir"
 source /opt/ros/humble/setup.bash
+
 rosdep keys --from-paths src --ignore-src | \
     sort | \
     while read key; do
