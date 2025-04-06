@@ -66,4 +66,4 @@ chown -R "$name:$name" /workspace
 
 # Run the build script
 sudo -u ubuntu \
-     bash -c "rosdep update && '$script_dir/build-all-debs.sh' --repo=/mount"
+     bash -c "rosdep update && '$script_dir/main.sh' --repo=/mount"
