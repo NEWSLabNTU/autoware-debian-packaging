@@ -22,6 +22,7 @@ clean_work_dir() {
 }
 export -f clean_work_dir
 
+cd "$colcon_work_dir"
 colcon list --base-paths src | cut -f1-2 | \
     while read -r pkg_name pkg_dir; do
 	# Prepare the working directory for the package
