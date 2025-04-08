@@ -1,25 +1,31 @@
 # Build Debian Packages for Autoware
 
-The project builds Debian packages for Autoware in an isolated Docker
-container environment.
+The project builds a local Debian repository for Autoware in an
+isolated Docker container environment.
+
+The article gives instructions to build a "local repo" package. If
+you're looking for the instructions to install Autoware from the local
+repo, please skip to the *Install Autoware from the Local Debian
+Repository* section.
 
 ## Prerequisites
 
 - **Ubuntu 22.04** operating system is recommended.
-- **Docker**. You can follow the [instructions](https://docs.docker.com/engine/install/ubuntu/) to install Docker on Ubuntu.
+- **Docker**. You can follow the
+  [instructions](https://docs.docker.com/engine/install/ubuntu/) to
+  install Docker on Ubuntu.
 
-## Usage
+## Build the Local Debian Repository
 
 ### Prepare Autoware Source Repository
 
-Prepare the Autoware version 2024.11 repository in the `~/autoware`
-directory. It is recommended to use the patched Autoware repository
-from NEWSLab.
+Prepare the Autoware repository in the `~/autoware` directory. It is
+recommended to use the patched Autoware repository from NEWSLab.
 
 <details>
 <summary>Option 1: Use Patched Autoware from NEWSLab (Recommended)</summary>
 ```sh
-git clone -b rosdebian/2024.11 --recurse-submodules https://github.com/NEWSLabNTU/autoware.git
+git clone -b rosdebian/2025.02 --recurse-submodules https://github.com/NEWSLabNTU/autoware.git
 cd autoware
 ```
 </details>
@@ -65,35 +71,67 @@ the `start.sh`.
 
 ```
 # The name may vary depending on your system.
-autoware-localrepo_1.0-1_amd64.deb
+autoware-localrepo_2025.2-1_amd64.deb
 ```
 
-### Install Autoware Debian Packages
+## Install Autoware from the Local Debian Repository
 
-Copy the `autoware-localrepo_1.0-1_amd64.deb` to the target system
-you'd like to deploy. Run the commands below to install Autoware.
+Copy the `autoware-localrepo_2025.2-1_amd64.deb` to the target system
+and install the local repository.
 
 ```sh
-sudo dpkg -i autoware-localrepo_1.0-1_amd64.deb
+sudo dpkg -i autoware-localrepo_2025.2-1_amd64.deb
 sudo apt update
-sudo apt install ros-humble-autoware-full
+sudo apt install autoware-full
+```
+
+Configure the system. The step can be executed only once after
+installation.
+
+```sh
+sudo autoware-setup
+```
+
+
+Run the [planning-simulation
+tutorial](https://autowarefoundation.github.io/autoware-documentation/main/tutorials/ad-hoc-simulation/planning-simulation/)
+for example. Download required map and data files. Source
+`/opt/autoware/autoware-env` to enable the runtime environment and
+launch to example.
+
+```sh
+# Assume all map and artifacts are downloaded.
+source /opt/autoware/autoware-env
+ros2 launch autoware_launch planning_simulator.launch.xml \
+	map_path:=$HOME/autoware_map/sample-map-planning \
+	vehicle_model:=sample_vehicle \
+	sensor_model:=sample_sensor_kit
 ```
 
 ## Details
 
 The build script runs the following steps.
 
-1. Create a mirrored `src` directroy in
+1. Create a cloned `src` directroy in
    `~/autoware/build_deb/sources/src`.
-2. Perform `rosdep install` to install required system dependencies.
+2. Run `rosdep install` to install required system dependencies.
+   Additional dependencies are installed as well.
 3. Run `colcon build` to build binaries in
-   `~/autoware/build_deb/sources/install` and source the ROS environment.
-4. Prepare Debian control and rule files in
-   `~/autoware/build_deb/build/$pkg/debian`. These files are either
-   copied from `~/autoware/rosdebian/config/$pkg/debian` or are
-   generated on the fly.
-5. Build Debian packages for all packages and move them to
+   `~/autoware/build_deb/sources/install` and source its `setup.bash`.
+4. Prepare Debian packaging script
+   `~/autoware/build_deb/build/$pkg/debian`. These directories are
+   either copied from `~/autoware/rosdebian/config/$pkg/debian` if it
+   exists, or are generated on the fly using `bloom-generate`.
+5. Build Debian packages for all packages in
    `~/autoware/build_deb/dist`.
+6. Create additional Debian packages.
+  - `autoware-runtime`, a virtual package that pulls all ROS packages from Autoware.
+  - `autoware-config`, providing RMW and environment configuration scripts.
+  - `autoware-full`, which pulls `autoware-runtime` and
+    `autoware-config` packages for end users.
+7. Create a local Debian repository and pack them into an
+   `autoware-localrepo` package. It contains all Debian files in all
+   previous steps.
 
 ## Customization
 
