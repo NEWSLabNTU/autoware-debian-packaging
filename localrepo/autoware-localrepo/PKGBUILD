@@ -8,8 +8,12 @@ url="https://autoware.org/"
 license=('MIT')
 depends=('dpkg') # Ensure apt and dpkg are available
 makedepends=() # If using debhelper tools
-source=('packages.tar' 'Release.in')
-sha256sums=('SKIP' 'SKIP')
+source=('packages.tar' 'Release.in' 'preference')
+sha256sums=(
+    'SKIP'
+    'b673cd03c45d7a19c9b3aa1c3d0501a8e6d9384067a07582b18986640882e453'
+    '553b945bc4044b5bef1195c890611330b58c357f4b97dc6f6a4bf1d5b2040aa9'
+)
 noextract=('packages.tar')
 
 prepare() {
@@ -27,7 +31,8 @@ package() {
 
   local repo_prefix="/opt/autoware-localrepo"
   local repo_dir="${pkgdir}/${repo_prefix}"
-  local suite_dir="${repo_dir}/dists/${suite}"
+  local dist_dir="${repo_dir}/dists"
+  local suite_dir="${dist_dir}/${suite}"
   local pool_dir="${suite_dir}/pool"
   local binary_dir="${suite_dir}/${component}/binary-${target_arch}"
 
@@ -60,10 +65,11 @@ package() {
       suite="${suite}" \
       release_date="${release_date}" \
       component="${component}" \
-      envsubst < "$srcdir/Release.in" > "$binary_dir/Release"
+      envsubst < "$srcdir/Release.in" > "$suite_dir/Release"
 
   # Create APT source list entry
   install -Dm644 /dev/stdin "$pkgdir/etc/apt/sources.list.d/autoware-localrepo.list" <<EOF
 deb [trusted=yes] file://${repo_prefix} ${suite} ${component}
 EOF
+  install -Dm644 "$srcdir/preference" "$pkgdir/etc/apt/preferences.d/autoware-localrepo"
 }

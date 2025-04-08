@@ -1,7 +1,7 @@
 Architectures: ${target_arch}
 Components: ${component}
 Date: ${release_date}
-Label: NEWSLab
+Label: Autoware
 Origin: NEWSLab
 Suite: ${suite}
 Codename: ${target_dist}
