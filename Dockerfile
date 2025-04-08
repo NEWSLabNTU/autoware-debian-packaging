@@ -44,7 +44,6 @@ FROM base AS builder
 # Prepare the setup script
 USER root
 RUN apt install -y parallel fakeroot debhelper dh-python rsync
-COPY rosdebian/scripts /workspace/scripts
 COPY rosdebian/setup /workspace/setup
 RUN chown -R ubuntu:ubuntu /workspace
 
