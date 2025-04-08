@@ -269,12 +269,10 @@ EOF
 	fi
     done | parallel --lb
 
-# Print Debian package names and versions
+#
 colcon list --base-paths src | cut -f1 | \
     while read -r pkg_name; do
-	deb_name=ros-"${ROS_DISTRO}"-"${pkg_name//_/-}"
-	version=$(colcon info "$pkg_name" | grep '^    version:' | head -n1 | cut -c 14-)
-	echo "${deb_name}=${version}"
+	echo ros-"${ROS_DISTRO}"-"${pkg_name//_/-}"
     done > "$deb_pkgs_file"
 
 # Build Debian files for each package in topological order.
