@@ -1,8 +1,8 @@
 # Maintainer: Jerry Lin <jerry73204@gmail.com>
-pkgname=ros-humble-autoware-full
+pkgname=autoware-runtime
 pkgver=2025.2
 pkgrel=1
-pkgdesc="A package that includes all Autoware packages"
+pkgdesc="Autoware binaries and libraries"
 arch=('any')
 url="https://autoware.org/"
 license=('MIT')
