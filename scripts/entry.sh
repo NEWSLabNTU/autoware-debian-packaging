@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 set -e
+script_dir=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
 
 # Parse options using getopt
 OPTIONS=h
@@ -64,4 +66,4 @@ chown -R "$name:$name" /workspace
 
 # Run the build script
 sudo -u ubuntu \
-     bash -c 'rosdep update && /workspace/scripts/build-all-debs.sh --repo=/mount'
+     bash -c "rosdep update && '$script_dir/build-all-debs.sh' --repo=/mount"
