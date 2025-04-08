@@ -91,11 +91,6 @@ export deb_pkgs_file="$log_dir/deb_pkgs.txt"
 export successful_pkgs_file="$log_dir/successful_pkgs.txt"
 export failed_pkgs_file="$log_dir/failed_pkgs.txt"
 
-# export generate_debian_script="$script_dir/generate-debian.sh"
-export rosdep_gen_script="$script_dir/generate-rosdep-commands.sh"
-export extra_deps_script="$script_dir/extra-deps.sh"
-export make_deb_script="$script_dir/make-deb.sh"
-
 make_pkg_work_dir() {
     pkg_name="$1"
     shift || return 1
