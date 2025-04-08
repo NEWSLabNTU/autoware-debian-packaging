@@ -127,13 +127,8 @@ source "$colcon_work_dir/install/setup.bash"
 # Create a rosdep list file
 ./create-rosdep-list.sh
 
-(
-    cd "$colcon_work_dir"
-    colcon list --base-paths src | cut -f1 | \
-	while read -r pkg_name; do
-	    echo ros-"${ROS_DISTRO}"-"${pkg_name//_/-}"
-	done > "$deb_pkgs_file"
-)
+# Create a Debian package list file
+./create-package-list.sh
 
 # Copy or generate Debian control/rules files
 ./generate-debian-dir.sh
