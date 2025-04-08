@@ -35,7 +35,7 @@ run:
 		-v /tmp/.X11-unix/:/tmp/.X11-unix \
 		-v $$PWD/..:/mount \
 		$(IMAGE_NAME) \
-		/workspace/scripts/entry.sh --uid=$$(id -u) --gid=$$(id -g)
+		/mount/rosdebian/scripts/entry.sh --uid=$$(id -u) --gid=$$(id -g)
 
 save:
 	docker save $(IMAGE_NAME) | zstd -T0 -o $(IMAGE_NAME).tar.zstd
