@@ -55,13 +55,11 @@ build_deb() {
 	fi
     )  > "$out_file" 2> "$err_file"
     
-    # '$make_deb_script' '$pkg_name' '$pkg_dir' '$pkg_work_dir' '$release_dir' > '$out_file' 2> '$err_file'
-    
     echo "info: build successful for ${pkg_name}" 
-    echo '$pkg_name' >> '$successful_pkgs_file' ||
+    echo "$pkg_name" >> "$successful_pkgs_file" ||
 	(
 	    echo "error: fail to build Debian package for ${pkg_name}" 
-	    echo '$pkg_name' >> '$failed_pkgs_file'
+	    echo "$pkg_name" >> "$failed_pkgs_file"
 	)
 }
 export -f build_deb
