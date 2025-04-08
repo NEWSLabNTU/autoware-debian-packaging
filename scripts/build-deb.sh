@@ -69,5 +69,5 @@ export -f build_deb
 colcon list --base-paths src | cut -f1-2 | \
     while read -r pkg_name pkg_dir; do
 	pkg_dir=$(realpath "$pkg_dir")
-	sem "-j${njobs}"  build_deb "$pkg_name" "$pkg_dir"
+	sem "-j${njobs}" --wait build_deb "$pkg_name" "$pkg_dir"
     done
