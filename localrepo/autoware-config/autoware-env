@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+export AUTOWARE_HOME=/opt/autoware
+export RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
+export CYCLONEDDS_URI="file://$AUTOWARE_HOME/cyclonedds.xml"
+
+if [[ -v ROS_LOCALHOST_ONLY ]]; then
+    echo 'warning: ROS_LOCALHOST_ONLY variable is unset.'
+    unset ROS_LOCALHOST_ONLY
+fi

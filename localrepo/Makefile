@@ -3,3 +3,4 @@
 build:
 	$(MAKE) -C ros-humble-autoware-full build
 	$(MAKE) -C autoware-localrepo
+	$(MAKE) -C autoware-config build
