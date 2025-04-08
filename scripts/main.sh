@@ -119,7 +119,6 @@ export -f make_pkg_config_dir
 # Install dependencies
 ./install-deps.sh
 
-
 # Compile the whole repository
 ./build-src.sh
 source "$colcon_work_dir/install/setup.bash"
