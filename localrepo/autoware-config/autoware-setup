@@ -1,6 +1,12 @@
 #!/usr/bin/env bash
-set -e
 AUTOWARE_HOME=/opt/autoware
+
+if ! pidof systemd >/dev/null 2>&1; then
+    echo 'systemd is not present. assuming container environment.'
+    systemd_found=false
+else
+    systemd_found=true
+fi
 
 print_help() {
     cat <<EOF
@@ -34,7 +40,7 @@ apply_setup() {
     install -dm755 /etc/sysctl.d
     install -Dm755 "$AUTOWARE_HOME/10-cyclone-max.conf" /etc/sysctl.d/10-cyclone-max.conf
     echo 'Created /etc/sysctl.d/10-cyclone-max.conf'
-    sysctl -p /etc/sysctl.d/10-cyclone-max.conf
+    sysctl -p /etc/sysctl.d/10-cyclone-max.conf 2>/dev/null
 
     install -dm755 /etc/systemd/system
     install -Dm755 "$AUTOWARE_HOME/multicast-lo.service" /etc/systemd/system/multicast-lo.service
@@ -59,9 +65,41 @@ revert_setup() {
     systemctl daemon-reload
     echo 'Removed /etc/systemd/system/multicast-lo.service'
 
-    ip link set lo multicast off 2>/dev/null || true
-    echo 'Disabled multicast on lo interface'
+    ip link set lo multicast off 2>/dev/null \
+	&& echo 'Disabled multicast on lo interface' \
+	    || echo 'Warning: unable to disable multicast on lo interface'
 }
+
+apply_setup_in_container() {
+    check_root
+
+    # Increase the maximum receive buffer size for network packets
+    (
+	sysctl -w net.core.rmem_max=2147483647 &&
+	sysctl -w net.ipv4.ipfrag_time=3 &&
+	sysctl -w net.ipv4.ipfrag_high_thresh=134217728
+    ) 2>/dev/null \
+	&& echo 'Configured network parameters' \
+	    || echo 'Warning: unable to configure network parameters'
+
+    ip link set lo multicast on 2>/dev/null \
+	&& echo 'Enabled multicast on lo interface' \
+	    || echo "Warning: cannot enable multicast on lo"
+    
+
+    echo '# Run this command to activate Autoware runtime environment.'
+    echo "source $AUTOWARE_HOME/autoware-env"
+}
+
+revert_setup_in_container() {
+    check_root
+    echo 'Warning: Revering network parameters in container is not supported'
+
+    ip link set lo multicast off 2>/dev/null \
+	&& echo 'Disabled multicast on lo interface' \
+	    || echo 'Warning: unable to disable multicast on lo interface'
+}
+
 
 main() {
     OPTIONS=$(getopt -o h --long help,revert -n 'autoware-setup' -- "$@")
@@ -71,7 +109,7 @@ main() {
     fi
     eval set -- "$OPTIONS"
 
-    REVERT=false
+    revert=false
 
     while true; do
         case "$1" in
@@ -80,7 +118,7 @@ main() {
                 exit 0
                 ;;
             --revert)
-                REVERT=true
+                revert=true
                 shift
                 ;;
             --)
@@ -94,10 +132,18 @@ main() {
         esac
     done
 
-    if $REVERT; then
-        revert_setup
+    if $systemd_found; then
+	if $revert; then
+            revert_setup
+	else
+            apply_setup
+	fi
     else
-        apply_setup
+	if $revert; then
+            revert_setup_in_container
+	else
+            apply_setup_in_container
+	fi
     fi
 }
 
