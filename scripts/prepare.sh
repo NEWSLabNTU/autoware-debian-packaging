@@ -28,6 +28,6 @@ colcon list --base-paths src | cut -f1-2 | \
 	# Prepare the working directory for the package
 	pkg_dir=$(realpath "$pkg_dir")
 	pkg_work_dir="$(make_pkg_work_dir $pkg_name)"
-	sem "-j$(nproc)" clean_work_dir "$pkg_work_dir"
+	sem --id $$ "-j$(nproc)" clean_work_dir "$pkg_work_dir"
     done
-sem --wait
+sem --id $$ --wait

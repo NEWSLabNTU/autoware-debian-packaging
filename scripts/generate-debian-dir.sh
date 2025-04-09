@@ -46,6 +46,6 @@ colcon list --base-paths src | cut -f1-2 | \
     while read -r pkg_name pkg_dir; do
 	# Prepare the working directory for the package
 	pkg_dir=$(realpath "$pkg_dir")
- 	sem "-j$(nproc)" copy_or_create_debian_dir "$pkg_name" "$pkg_dir"
+	sem --id $$ "-j$(nproc)" copy_or_create_debian_dir "$pkg_name" "$pkg_dir"
     done
-sem --wait
+sem --id $$ --wait
