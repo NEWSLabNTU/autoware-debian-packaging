@@ -111,26 +111,26 @@ make_pkg_config_dir() {
 export -f make_pkg_config_dir
 
 # Prepare the working directory
-./prepare.sh
+./build/prepare.sh
 
 # Copy source files
-./copy-src.sh
+./build/copy-src.sh
 
 # Install dependencies
-./install-deps.sh
+./build/install-deps.sh
 
 # Compile the whole repository
-./build-src.sh
+./build/build-src.sh
 source "$colcon_work_dir/install/setup.bash"
 
 # Create a rosdep list file
-./create-rosdep-list.sh
+./build/create-rosdep-list.sh
 
 # Create a Debian package list file
-./create-package-list.sh
+./build/create-package-list.sh
 
 # Copy or generate Debian control/rules files
-./generate-debian-dir.sh
+./build/generate-debian-dir.sh
 
 # Build Debian packages
-./build-deb.sh
+./build/build-deb.sh

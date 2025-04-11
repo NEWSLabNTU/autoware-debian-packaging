@@ -1,4 +1,7 @@
 # Run `apt update` to refresh package caches
+script_dir=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+cd "$script_dir"
+
 echo 'info: run apt update'
 sudo apt update
 
