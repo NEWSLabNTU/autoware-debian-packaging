@@ -1,0 +1,5 @@
+# makedeb
+/pack-rosdeb.tar
+/pack-rosdeb_*.deb
+/src/
+/pkg/
