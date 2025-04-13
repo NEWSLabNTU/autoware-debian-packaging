@@ -3,7 +3,7 @@ set -e
 
 # Parse options using getopt
 OPTIONS=h
-LONGOPTIONS=help,skip-rosdep-install,skip-copy-src,skip-gen-rosdep-list,skip-colcon-build,repo:
+LONGOPTIONS=help,skip-rosdep-install,skip-copy-src,skip-gen-rosdep-list,skip-colcon-build,repo:,debian-dir:
 PARSED=$(getopt --options "$OPTIONS" --longoptions "$LONGOPTIONS" --name "$0" -- "$@")
 
 # Check if getopt failed
@@ -20,10 +20,12 @@ export gen_rosdep_list=y
 export copy_src=y
 export colcon_build=y
 export repo_dir=
+export debian_dir=
 
 print_usage() {
     echo "Usage: $0 [OPTION]... --repo=REPO_DIR"
     echo "  -h,--help                   show this help message"
+    echo "  --debian-dir                optional path to a directory of Debian packaging files"
     echo "  --skip-rosdep-install       do not run `rosdep install`"
     echo "  --skip-copy-src             do not copy source files to the build cache"
     echo "  --skip-gen-rosdep-list      do not modify the system rosdep list"
@@ -53,7 +55,11 @@ while true; do
 	    shift 1
 	    ;;
 	--repo)
-	    repo_dir="$2"
+	    repo_dir=$(realpath "$2")
+	    shift 2
+	    ;;
+	--debian-dir)
+	    debian_dir=$(realpath "$2")
 	    shift 2
 	    ;;
 	--)
@@ -75,14 +81,12 @@ fi
 
 # Locate utility scripts
 export script_dir=$(cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd)
-export repo_dir=$(realpath "$repo_dir")
 
 # Set working directory to the parent of this script.
 cd "$script_dir"
 
 export top_work_dir="$repo_dir/build_deb"
 export colcon_work_dir="$top_work_dir/sources"
-export config_dir="$repo_dir/rosdebian/config"
 export release_dir="$top_work_dir/dist"
 export pkg_build_dir="$top_work_dir/build"
 
@@ -106,7 +110,7 @@ export -f make_pkg_work_dir
 make_pkg_config_dir() {
     pkg_name="$1"
     shift || return 1
-    echo "$config_dir/$pkg_name"
+    echo "$debian_dir/$pkg_name"
 }
 export -f make_pkg_config_dir
 
@@ -131,6 +135,6 @@ source "$colcon_work_dir/install/setup.bash"
 
 # Copy or generate Debian control/rules files
 ./build/generate-debian-dir.sh
-
+exit
 # Build Debian packages
 ./build/build-deb.sh

@@ -15,7 +15,7 @@ copy_or_create_debian_dir() {
     pkg_config_dir="$(make_pkg_config_dir $pkg_name)"
     out_file="$pkg_work_dir/gen_deb.out"
     err_file="$pkg_work_dir/gen_deb.err"
-    src_debian_dir="$config_dir/$pkg_name/debian"
+    src_debian_dir="$debian_dir/$pkg_name/debian"
     dst_debian_dir="$pkg_work_dir/debian"
 
     mkdir -p "$pkg_work_dir"
