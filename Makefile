@@ -1,4 +1,4 @@
-.PHONY: help debian
+.PHONY: help debian clean
 
 help:
 	@echo 'Usage:'
