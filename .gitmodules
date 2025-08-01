@@ -1,5 +1,5 @@
 [submodule "autoware-debian-config"]
-	path = config
+	path = example/config
 	url = https://github.com/NEWSLabNTU/autoware-debian-config.git
 [submodule "docker"]
 	path = docker

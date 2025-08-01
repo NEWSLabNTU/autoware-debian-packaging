@@ -27,7 +27,7 @@ build:
 	docker build .. -f Dockerfile -t $(IMAGE_NAME)
 
 run:
-	./docker_run.py --dockerfile Dockerfile --colcon-dir ~/repos/autoware/0.45.1-ws/ --config-dir config
+	./docker_run.py --workspace ~/repos/autoware/0.45.1-ws/ --config example/config.yaml
 
 save:
 	docker save $(IMAGE_NAME) | zstd -T0 -o $(IMAGE_NAME).tar.zstd

@@ -5,6 +5,7 @@ import argparse
 import os
 import subprocess
 import sys
+import yaml
 from pathlib import Path
 
 
@@ -44,69 +45,122 @@ def build_image_from_dockerfile(dockerfile_path, image_name):
     return image_name
 
 
+def load_config(config_path):
+    """Load configuration from YAML file."""
+    config_path = Path(config_path).resolve()
+    if not config_path.exists():
+        print(f"Error: Config file not found at {config_path}", file=sys.stderr)
+        sys.exit(1)
+
+    with open(config_path, "r") as f:
+        try:
+            config = yaml.safe_load(f)
+        except yaml.YAMLError as e:
+            print(f"Error parsing config file: {e}", file=sys.stderr)
+            sys.exit(1)
+
+    return config
+
+
 def main():
     parser = argparse.ArgumentParser(
-        description="Docker run script with enhanced functionality for Autoware Debian packaging"
+        description="Build Debian packages from colcon workspace"
     )
 
-    # Image source - either image name or Dockerfile
-    image_group = parser.add_mutually_exclusive_group(required=True)
-    image_group.add_argument("--image", "-i", help="Docker image name to use")
-    image_group.add_argument(
-        "--dockerfile", "-f", help="Path to Dockerfile to build and use"
-    )
-
-    # Colcon directory
+    # Workspace directory
     parser.add_argument(
-        "--colcon-dir",
-        "-c",
+        "--workspace",
         required=True,
-        help="Path to colcon directory to mount at /mount in container",
+        help="Path to colcon workspace directory",
     )
 
-    # Optional: custom image name when building from Dockerfile
+    # Config file
     parser.add_argument(
-        "--image-name",
-        default="autoware_rosdebian_builder_custom",
-        help="Image name to use when building from Dockerfile (default: autoware_rosdebian_builder_custom)",
-    )
-
-    # Config directory
-    parser.add_argument(
-        "--config-dir",
+        "--config",
         required=True,
-        help="Path to config directory to mount at /config in container",
+        help="Path to configuration YAML file",
     )
 
     # Parse arguments
     args = parser.parse_args()
 
-    # Determine the image to use
-    if args.dockerfile:
-        image_name = build_image_from_dockerfile(args.dockerfile, args.image_name)
-    else:
-        image_name = args.image
+    # Load configuration
+    config = load_config(args.config)
 
-    # Verify colcon directory exists
-    colcon_dir = Path(args.colcon_dir).resolve()
-    if not colcon_dir.exists():
-        print(f"Error: Colcon directory not found at {colcon_dir}", file=sys.stderr)
+    # Validate config version
+    if config.get("version") != 1:
+        print(
+            f"Error: Unsupported config version: {config.get('version')}",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
+    # Get docker configuration
+    docker_config = config.get("docker", {})
+    if "image" in docker_config and "dockerfile" in docker_config:
+        print(
+            "Error: Cannot specify both 'image' and 'dockerfile' in config",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
+    if "image" not in docker_config and "dockerfile" not in docker_config:
+        print(
+            "Error: Must specify either 'image' or 'dockerfile' in config",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
+    # Determine the image to use
+    if "dockerfile" in docker_config:
+        dockerfile_path = Path(docker_config["dockerfile"])
+        if not dockerfile_path.is_absolute():
+            # Relative to config file
+            dockerfile_path = Path(args.config).parent / dockerfile_path
+        # Ensure absolute path
+        dockerfile_path = dockerfile_path.resolve()
+        image_name = build_image_from_dockerfile(
+            dockerfile_path, docker_config.get("image_name", "colcon2deb_builder")
+        )
+    else:
+        image_name = docker_config["image"]
+
+    # Verify workspace directory exists
+    workspace_dir = Path(args.workspace).resolve()
+    if not workspace_dir.exists():
+        print(
+            f"Error: Workspace directory not found at {workspace_dir}", file=sys.stderr
+        )
         sys.exit(1)
 
     # Get current user/group IDs
     uid = os.getuid()
     gid = os.getgid()
 
-    # Get the rosdebian project directory (where this script is located)
+    # Get the script directory (where this script is located)
     script_dir = Path(__file__).resolve().parent
+    helper_dir = script_dir / "helper"
 
-    # Verify config directory exists
-    config_dir = Path(args.config_dir).resolve()
-    if not config_dir.exists():
-        print(f"Error: Config directory not found at {config_dir}", file=sys.stderr)
+    # Get packages configuration directory
+    packages_config = config.get("packages", {})
+    if "directory" not in packages_config:
+        print("Error: 'packages.directory' not specified in config", file=sys.stderr)
         sys.exit(1)
 
-    helper_dir = script_dir / "helper"
+    packages_dir = Path(packages_config["directory"])
+    if not packages_dir.is_absolute():
+        # Relative to config file
+        packages_dir = Path(args.config).parent / packages_dir
+
+    # Ensure absolute path for Docker
+    packages_dir = packages_dir.resolve()
+
+    if not packages_dir.exists():
+        print(
+            f"Error: Packages config directory not found at {packages_dir}",
+            file=sys.stderr,
+        )
+        sys.exit(1)
 
     # Prepare Docker run command
     docker_cmd = [
@@ -122,9 +176,9 @@ def main():
         "-v",
         "/tmp/.X11-unix/:/tmp/.X11-unix",
         "-v",
-        f"{colcon_dir}:/mount",
+        f"{workspace_dir}:/mount",
         "-v",
-        f"{config_dir}:/config",
+        f"{packages_dir}:/config",
         "-v",
         f"{helper_dir}:/helper",
         image_name,
@@ -135,8 +189,8 @@ def main():
 
     # Run the container
     print(f"\nStarting container:")
-    print(f"  Colcon directory: {colcon_dir} -> /mount")
-    print(f"  Config directory: {config_dir} -> /config")
+    print(f"  Workspace directory: {workspace_dir} -> /mount")
+    print(f"  Packages config directory: {packages_dir} -> /config")
     print(f"  Helper directory: {helper_dir} -> /helper")
     print(f"  Using image: {image_name}")
 
