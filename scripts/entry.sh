@@ -62,6 +62,7 @@ groupadd -g "$gid" "$name"
 useradd -m -u "$uid" -g "$gid" "$name"
 usermod -aG sudo "$name"
 passwd -d "$name"
+sudo mkdir /workspace
 chown -R "$name:$name" /workspace
 
 # Run the build script
