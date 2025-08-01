@@ -34,7 +34,7 @@ copy_or_create_debian_dir() {
 	    set -Eeuo pipefail
 	    cd "$pkg_config_dir"
 	    bloom-generate rosdebian --ros-distro "$ROS_DISTRO" "$pkg_dir"
-	    rsync -av --delete "$src_debian_dir/" "$dst_debian_dir/"
+	    rsync -av --delete "$pkg_config_dir/debian/" "$dst_debian_dir/"
 	) >> "$out_file" 2>> "$err_file" ||
 	    echo "error: fail to generate Debain files for ${pkg_name}" >&2
 

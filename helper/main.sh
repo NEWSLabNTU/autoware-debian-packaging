@@ -82,7 +82,7 @@ cd "$script_dir"
 
 export top_work_dir="$repo_dir/build_deb"
 export colcon_work_dir="$top_work_dir/sources"
-export config_dir="$repo_dir/rosdebian/config"
+export config_dir="/config"
 export release_dir="$top_work_dir/dist"
 export pkg_build_dir="$top_work_dir/build"
 

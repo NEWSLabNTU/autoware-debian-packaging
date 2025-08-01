@@ -92,6 +92,8 @@ def main():
 
     # Get the rosdebian project directory (where this script is located)
     script_dir = Path(__file__).resolve().parent
+    config_dir = script_dir / "config"
+    scripts_dir = script_dir / "helper"
 
     # Prepare Docker run command
     docker_cmd = [
@@ -109,9 +111,11 @@ def main():
         "-v",
         f"{colcon_dir}:/mount",
         "-v",
-        f"{script_dir}:/mount/rosdebian",
+        f"{config_dir}:/config",
+        "-v",
+        f"{scripts_dir}:/helper",
         image_name,
-        "/mount/rosdebian/scripts/entry.sh",
+        "/helper/entry.sh",
         f"--uid={uid}",
         f"--gid={gid}",
     ]
@@ -119,7 +123,8 @@ def main():
     # Run the container
     print(f"\nStarting container:")
     print(f"  Colcon directory: {colcon_dir} -> /mount")
-    print(f"  Rosdebian directory: {script_dir} -> /mount/rosdebian")
+    print(f"  Config directory: {config_dir} -> /config")
+    print(f"  Scripts directory: {scripts_dir} -> /helper")
     print(f"  Using image: {image_name}")
 
     try:
