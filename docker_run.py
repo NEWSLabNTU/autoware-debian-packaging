@@ -71,6 +71,13 @@ def main():
         help="Image name to use when building from Dockerfile (default: autoware_rosdebian_builder_custom)",
     )
 
+    # Config directory
+    parser.add_argument(
+        "--config-dir",
+        required=True,
+        help="Path to config directory to mount at /config in container",
+    )
+
     # Parse arguments
     args = parser.parse_args()
 
@@ -92,8 +99,14 @@ def main():
 
     # Get the rosdebian project directory (where this script is located)
     script_dir = Path(__file__).resolve().parent
-    config_dir = script_dir / "config"
-    scripts_dir = script_dir / "helper"
+
+    # Verify config directory exists
+    config_dir = Path(args.config_dir).resolve()
+    if not config_dir.exists():
+        print(f"Error: Config directory not found at {config_dir}", file=sys.stderr)
+        sys.exit(1)
+
+    helper_dir = script_dir / "helper"
 
     # Prepare Docker run command
     docker_cmd = [
@@ -113,7 +126,7 @@ def main():
         "-v",
         f"{config_dir}:/config",
         "-v",
-        f"{scripts_dir}:/helper",
+        f"{helper_dir}:/helper",
         image_name,
         "/helper/entry.sh",
         f"--uid={uid}",
@@ -124,7 +137,7 @@ def main():
     print(f"\nStarting container:")
     print(f"  Colcon directory: {colcon_dir} -> /mount")
     print(f"  Config directory: {config_dir} -> /config")
-    print(f"  Scripts directory: {scripts_dir} -> /helper")
+    print(f"  Helper directory: {helper_dir} -> /helper")
     print(f"  Using image: {image_name}")
 
     try:
