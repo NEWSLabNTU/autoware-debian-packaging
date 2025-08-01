@@ -1,6 +1,3 @@
-[submodule "autoware-localrepo"]
-	path = localrepo
-	url = https://github.com/NEWSLabNTU/autoware-localrepo.git
 [submodule "autoware-debian-config"]
 	path = config
 	url = https://github.com/NEWSLabNTU/autoware-debian-config.git
