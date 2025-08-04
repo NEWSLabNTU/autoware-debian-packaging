@@ -1,154 +1,171 @@
-# Build Debian Packages for Autoware
+# colcon2deb
 
-The project builds a local Debian repository for Autoware in an
-isolated Docker container environment.
+Build Debian packages from colcon workspaces using Docker containers.
 
-The article gives instructions to build a "local repo" package. If
-you're looking for the instructions to install Autoware from the local
-repo, please skip to the *Install Autoware from the Local Debian
-Repository* section.
+## Overview
 
-## Prerequisites
+`colcon2deb` is a tool that converts ROS 2 packages in a colcon workspace into Debian packages. It runs the build process inside Docker containers to ensure a clean and reproducible build environment.
 
-- **Ubuntu 22.04** operating system is recommended.
-- **Docker**. You can follow the
-  [instructions](https://docs.docker.com/engine/install/ubuntu/) to
-  install Docker on Ubuntu.
+## Installation
 
-## Build the Local Debian Repository
+### From Source
 
-### Prepare Autoware Source Repository
+```bash
+# Clone the repository
+git clone https://github.com/autowarefoundation/colcon2deb.git
+cd colcon2deb
 
-Prepare the Autoware repository in the `~/autoware` directory. It is
-recommended to use the patched Autoware repository from NEWSLab.
-
-<details>
-<summary>Option 1: Use Patched Autoware from NEWSLab (Recommended)</summary>
-```sh
-git clone -b rosdebian/2025.02 --recurse-submodules https://github.com/NEWSLabNTU/autoware.git
-cd autoware
+# Build and install the Debian package
+make deb
+sudo dpkg -i colcon2deb_*.deb
 ```
-</details>
 
-<details>
-<summary>Option 2: Use Official Autoware</summary>
+### Using makedeb
 
-```sh
-# at home directory
+```bash
+# Install makedeb if not already installed
+# See: https://www.makedeb.org/
+
+# Build the package
+makedeb -si
+```
+
+## Usage
+
+### 1. Prepare a Docker Builder Image
+
+You need a Docker image with ROS 2 and build dependencies installed. You have two options:
+
+**Option A: Use an existing image**
+```yaml
+docker:
+  image: ros:humble-ros-base
+```
+
+**Option B: Build from a Dockerfile**
+```yaml
+docker:
+  dockerfile: ./path/to/Dockerfile
+```
+
+Note: Pre-configured Dockerfiles for various architectures (amd64, arm64, jetpack) will be available in a separate repository.
+
+### 2. Prepare Your Colcon Workspace
+
+Example using Autoware:
+
+```bash
+# Clone Autoware repository
 git clone https://github.com/autowarefoundation/autoware.git
-
 cd autoware
+
+# Import dependencies
 mkdir src
 vcs import src < autoware.repos
-```
-</details>
 
-> NOTE
->
-> There is no need to run ansible scripts on the host system.
-
-### Build Debian Packages
-
-Download this project and place this project directory to
-`~/autoware/rosdebian` directory.
-
-```sh
-# Within the `autoware` directory
-git clone https://github.com/NEWSLabNTU/autoware-debian-packaging.git rosdebian
-cd rosdebian
+# Your workspace is now at: /path/to/autoware
 ```
 
-Launch the build process. It will place all artifacts in the
-`~/autoware/build_deb` directory. Once the build is done, newly
-compiled Debian packages can be found in `~/autoware/build_deb/dist`.
+### 3. Create a Configuration File
 
-```sh
-./start.sh
+Create a `config.yaml` file:
+
+```yaml
+# config.yaml
+version: 1
+
+# Docker configuration
+docker:
+  # Option 1: Use existing image
+  image: ros:humble-ros-base
+  
+  # Option 2: Build from Dockerfile
+  # dockerfile: ./Dockerfile
+  # image_name: my_builder  # optional, name for built image
+
+# Output configuration
+output:
+  directory: ./output  # Where to place built .deb files
+
+# Package configurations
+packages:
+  directory: ./config  # Directory containing package-specific debian/ folders
+
+# Build options (optional)
+build:
+  ros_distro: humble  # auto-detected if not specified
+  parallel_jobs: 8    # defaults to nproc
+  skip_tests: true    # defaults to false
 ```
 
-After the script finishes, a _repository_ package is create along side
-the `start.sh`.
+### 4. Run colcon2deb
 
-```
-# The name may vary depending on your system.
-autoware-localrepo_2025.2-1_amd64.deb
+```bash
+colcon2deb --workspace /path/to/autoware --config config.yaml
 ```
 
-## Install Autoware from the Local Debian Repository
+This will:
+1. Build or pull the specified Docker image
+2. Mount your workspace into the container
+3. Build all ROS packages in the workspace
+4. Generate Debian packages for each ROS package
+5. Output `.deb` files to the specified output directory
 
-Copy the `autoware-localrepo_2025.2-1_amd64.deb` to the target system
-and install the local repository.
+## Package-Specific Debian Configurations
 
-```sh
-sudo dpkg -i autoware-localrepo_2025.2-1_amd64.deb
-sudo apt update
-sudo apt install autoware-full
+If you need to customize the Debian packaging for specific packages, create a directory structure like:
+
+```
+config/
+├── package_name_1/
+│   └── debian/
+│       ├── control      # Package metadata
+│       ├── rules        # Build rules
+│       └── changelog    # Version history
+└── package_name_2/
+    └── debian/
+        └── ...
 ```
 
-Configure the system. The step can be executed only once after
-installation.
+These custom configurations will override the auto-generated Debian files for those packages.
 
-```sh
-sudo autoware-setup
+## Example Configuration
+
+A complete example is provided in `/usr/share/colcon2deb/example/` (or in the `example/` directory if running from source):
+
+- `config.yaml` - Example configuration file
+- `config/` - Example package-specific Debian configurations
+
+## Build Process
+
+The build process runs entirely inside Docker containers and includes:
+
+1. **Source Preparation** - Copy workspace sources into build directory
+2. **Dependency Installation** - Install ROS dependencies using rosdep
+3. **Build** - Compile all packages using colcon
+4. **Debian Generation** - Create Debian control files for each package
+5. **Package Building** - Build `.deb` files using dpkg-buildpackage
+
+## Requirements
+
+- Docker or Docker CE
+- Python 3
+- PyYAML
+
+## Development
+
+To run from source without installing:
+
+```bash
+./colcon2deb --workspace /path/to/workspace --config config.yaml
 ```
 
+The tool automatically detects whether it's running from an installed location or from the source directory.
 
-Run the [planning-simulation
-tutorial](https://autowarefoundation.github.io/autoware-documentation/main/tutorials/ad-hoc-simulation/planning-simulation/)
-for example. Download required map and data files. Source
-`/opt/autoware/autoware-env` to enable the runtime environment and
-launch to example.
+## License
 
-```sh
-# Assume all map and artifacts are downloaded.
-source /opt/autoware/autoware-env
-ros2 launch autoware_launch planning_simulator.launch.xml \
-	map_path:=$HOME/autoware_map/sample-map-planning \
-	vehicle_model:=sample_vehicle \
-	sensor_model:=sample_sensor_kit
-```
+Apache License 2.0
 
-## Details
+## Support
 
-The build script runs the following steps.
-
-1. Create a cloned `src` directroy in
-   `~/autoware/build_deb/sources/src`.
-2. Run `rosdep install` to install required system dependencies.
-   Additional dependencies are installed as well.
-3. Run `colcon build` to build binaries in
-   `~/autoware/build_deb/sources/install` and source its `setup.bash`.
-4. Prepare Debian packaging script
-   `~/autoware/build_deb/build/$pkg/debian`. These directories are
-   either copied from `~/autoware/rosdebian/config/$pkg/debian` if it
-   exists, or are generated on the fly using `bloom-generate`.
-5. Build Debian packages for all packages in
-   `~/autoware/build_deb/dist`.
-6. Create additional Debian packages.
-  - `autoware-runtime`, a virtual package that pulls all ROS packages from Autoware.
-  - `autoware-config`, providing RMW and environment configuration scripts.
-  - `autoware-full`, which pulls `autoware-runtime` and
-    `autoware-config` packages for end users.
-7. Create a local Debian repository and pack them into an
-   `autoware-localrepo` package. It contains all Debian files in all
-   previous steps.
-
-## Customization
-
-### Change Base Docker Image
-
-The base image is specified in the first line of Dockerfile. You can
-modify it to your preferred image. For example,
-
-```diff
-< FROM ubuntu:22.04 AS base
----
-> FROM nvcr.io/nvidia/l4t-tensorrt:r8.6.2-devel AS base
-```
-
-### Customize Environment Setup
-
-By the time the Docker image is built, the `setup/` directory is
-copied to the `/workspace/setup` in the container and
-`/workspace/setup/setup.sh` is executed. The setup script can be
-modified to fit your needs.
+For issues and contributions, please visit: https://github.com/autowarefoundation/colcon2deb
