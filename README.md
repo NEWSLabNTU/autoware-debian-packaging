@@ -6,49 +6,66 @@ Build Debian packages from colcon workspaces using Docker containers.
 
 `colcon2deb` is a tool that converts ROS 2 packages in a colcon workspace into Debian packages. It runs the build process inside Docker containers to ensure a clean and reproducible build environment.
 
+## Architecture
+
+```mermaid
+graph TD
+    %% Input files
+    A[Colcon Workspace] -->|Mount as /mount| D[Docker Container]
+    B[config.yaml] -->|Configure| C[colcon2deb]
+    E[Package Configs] -->|Mount as /config| D
+    
+    %% Process flow
+    C -->|1. Parse config| F[Build/Pull Docker Image]
+    F -->|2. Start container| D
+    
+    %% Inside container
+    D -->|3. Copy sources| G[Build Directory]
+    G -->|4. Install deps| H[rosdep install]
+    H -->|5. Build| I[colcon build]
+    I -->|6. Generate| J[Debian Control Files]
+    J -->|7. Package| K[dpkg-buildpackage]
+    K -->|8. Output| L[.deb Files]
+    
+    %% Styling
+    style A fill:#e1f5fe,stroke:#01579b,color:#000
+    style B fill:#fff3e0,stroke:#e65100,color:#000
+    style E fill:#fff3e0,stroke:#e65100,color:#000
+    style C fill:#f3e5f5,stroke:#4a148c,color:#000
+    style D fill:#e8f5e9,stroke:#1b5e20,color:#000
+    style L fill:#ffebee,stroke:#b71c1c,color:#000
+```
+
 ## Installation
 
-### From Source
+### Download Pre-built Package
+
+Download the latest release from [GitHub Releases](https://github.com/NEWSLabNTU/colcon2deb/releases/tag/v0.1.0):
 
 ```bash
-# Clone the repository
-git clone https://github.com/autowarefoundation/colcon2deb.git
-cd colcon2deb
+# Download the .deb package
+wget https://github.com/NEWSLabNTU/colcon2deb/releases/download/v0.1.0/colcon2deb_0.1.0-1_all.deb
 
-# Build and install the Debian package
-make deb
-sudo dpkg -i colcon2deb_*.deb
+# Install the package
+sudo apt install ./colcon2deb_0.1.0-1_all.deb
 ```
 
-### Using makedeb
-
-```bash
-# Install makedeb if not already installed
-# See: https://www.makedeb.org/
-
-# Build the package
-makedeb -si
-```
 
 ## Usage
 
 ### 1. Prepare a Docker Builder Image
 
-You need a Docker image with ROS 2 and build dependencies installed. You have two options:
+You need a Docker image with ROS 2 and build dependencies installed.
 
-**Option A: Use an existing image**
-```yaml
-docker:
-  image: ros:humble-ros-base
+**Option 1: Use an existing ROS image**
+```bash
+docker pull ros:humble-ros-base
 ```
 
-**Option B: Build from a Dockerfile**
-```yaml
-docker:
-  dockerfile: ./path/to/Dockerfile
-```
+**Option 2: Prepare your own Dockerfile**
 
-Note: Pre-configured Dockerfiles for various architectures (amd64, arm64, jetpack) will be available in a separate repository.
+Pre-configured Dockerfiles for various architectures (amd64, arm64, jetpack) are available at [autoware-build-images](https://github.com/NEWSLabNTU/autoware-build-images).
+
 
 ### 2. Prepare Your Colcon Workspace
 
@@ -58,17 +75,18 @@ Example using Autoware:
 # Clone Autoware repository
 git clone https://github.com/autowarefoundation/autoware.git
 cd autoware
+git checkout 2025.02
 
 # Import dependencies
 mkdir src
 vcs import src < autoware.repos
 
-# Your workspace is now at: /path/to/autoware
+# Your workspace is now at: ~/autoware
 ```
 
 ### 3. Create a Configuration File
 
-Create a `config.yaml` file:
+Create a `config.yaml` file to specify your build settings. Check the `example/` directory for a complete working example with all available options:
 
 ```yaml
 # config.yaml
@@ -80,7 +98,7 @@ docker:
   image: ros:humble-ros-base
   
   # Option 2: Build from Dockerfile
-  # dockerfile: ./Dockerfile
+  # dockerfile: ./path/to/Dockerfile
   # image_name: my_builder  # optional, name for built image
 
 # Output configuration
@@ -111,61 +129,30 @@ This will:
 4. Generate Debian packages for each ROS package
 5. Output `.deb` files to the specified output directory
 
-## Package-Specific Debian Configurations
+## Customization
 
-If you need to customize the Debian packaging for specific packages, create a directory structure like:
+colcon2deb provides several ways to customize the build process:
 
-```
-config/
-├── package_name_1/
-│   └── debian/
-│       ├── control      # Package metadata
-│       ├── rules        # Build rules
-│       └── changelog    # Version history
-└── package_name_2/
-    └── debian/
-        └── ...
-```
+- **Docker images**: Choose pre-built images or use custom Dockerfiles
+- **Package configurations**: Override auto-generated Debian files for specific packages
+- **Build options**: Control parallelism, testing, and ROS distribution
 
-These custom configurations will override the auto-generated Debian files for those packages.
-
-## Example Configuration
-
-A complete example is provided in `/usr/share/colcon2deb/example/` (or in the `example/` directory if running from source):
-
-- `config.yaml` - Example configuration file
-- `config/` - Example package-specific Debian configurations
-
-## Build Process
-
-The build process runs entirely inside Docker containers and includes:
-
-1. **Source Preparation** - Copy workspace sources into build directory
-2. **Dependency Installation** - Install ROS dependencies using rosdep
-3. **Build** - Compile all packages using colcon
-4. **Debian Generation** - Create Debian control files for each package
-5. **Package Building** - Build `.deb` files using dpkg-buildpackage
+For detailed customization options, see the [Customization Guide](CUSTOMIZATION.md).
 
 ## Requirements
 
 - Docker or Docker CE
-- Python 3
-- PyYAML
+- Python 3 with PyYAML
+- Ubuntu 22.04 (recommended)
 
-## Development
+## For Developers
 
-To run from source without installing:
+If you want to contribute to colcon2deb or build it from source, please see the [Development Guide](DEVELOPMENT.md).
 
-```bash
-./colcon2deb --workspace /path/to/workspace --config config.yaml
-```
+## Support
 
-The tool automatically detects whether it's running from an installed location or from the source directory.
+For issues and contributions, please visit: https://github.com/NEWSLabNTU/colcon2deb
 
 ## License
 
 Apache License 2.0
-
-## Support
-
-For issues and contributions, please visit: https://github.com/autowarefoundation/colcon2deb
