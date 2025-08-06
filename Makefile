@@ -34,7 +34,7 @@ build:
 	docker build .. -f Dockerfile -t $(IMAGE_NAME)
 
 run:
-	./colcon2deb --workspace ~/repos/autoware/0.45.1-ws/ --config example/config.yaml
+	./colcon2deb.py --workspace ~/repos/autoware/0.45.1-ws/ --config example/config.yaml
 
 save:
 	docker save $(IMAGE_NAME) | zstd -T0 -o $(IMAGE_NAME).tar.zstd
@@ -44,21 +44,19 @@ pack:
 
 tarball:
 	@echo "Creating source tarball for colcon2deb v$(VERSION)..."
-	@mkdir -p dist
 	@tar --transform 's,^,colcon2deb-$(VERSION)/,' \
 		--exclude='example/docker' \
 		--exclude='*.pyc' \
 		--exclude='__pycache__' \
-		-czf dist/colcon2deb-$(VERSION).tar.gz \
-		colcon2deb \
+		-czf colcon2deb-$(VERSION).tar.gz \
+		colcon2deb.py \
 		helper/ \
 		example/ \
-		PKGBUILD \
+		makedeb/ \
 		README.md
-	@echo "Tarball created: dist/colcon2deb-$(VERSION).tar.gz"
+	@echo "Tarball created: colcon2deb-$(VERSION).tar.gz"
 
 clean:
-	@rm -rf dist/
 	@rm -rf pkg/
 	@rm -rf src/
 	@rm -f *.deb
@@ -67,6 +65,6 @@ clean:
 
 deb: tarball
 	@echo "Building Debian package with makedeb..."
-	@cp dist/colcon2deb-$(VERSION).tar.gz .
-	makedeb -s
+	@cp colcon2deb-$(VERSION).tar.gz makedeb/
+	cd makedeb && makedeb -s
 	@echo "Debian package created successfully!"

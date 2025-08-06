@@ -19,8 +19,17 @@ makedepends=(
     'python3'
 )
 
-source=("colcon2deb-${pkgver}.tar.gz")
-sha256sums=('SKIP')
+source=(
+    "../colcon2deb-${pkgver}.tar.gz"
+    "colcon2deb-wrapper.py"
+    "README-package.md"
+)
+
+sha256sums=(
+    'SKIP'
+    'SKIP'
+    'SKIP'
+)
 
 package() {
     # Create directories
@@ -31,17 +40,18 @@ package() {
 
     cd "${srcdir}/colcon2deb-${pkgver}"
 
-    # Install main executable
-    install -Dm755 "colcon2deb" "${pkgdir}/usr/bin/colcon2deb"
-
-    # Install helper scripts
+    # Install main Python script and helper scripts to /usr/share/colcon2deb
+    install -Dm755 "colcon2deb.py" "${pkgdir}/usr/share/${pkgname}/colcon2deb.py"
     cp -r "helper/"* "${pkgdir}/usr/share/${pkgname}/helper/"
     chmod 755 "${pkgdir}/usr/share/${pkgname}/helper/"*.sh
+
+    # Install wrapper script
+    install -Dm755 "${srcdir}/colcon2deb-wrapper.py" "${pkgdir}/usr/bin/colcon2deb"
 
     # Install example files (excluding docker/ subdirectory)
     cp -r "example/config" "${pkgdir}/usr/share/${pkgname}/example/"
     install -Dm644 "example/config.yaml" "${pkgdir}/usr/share/${pkgname}/example/config.yaml"
-    
+
     # Copy the example Dockerfile symlink if it exists
     if [ -L "example/Dockerfile" ]; then
         # Get the relative path of the symlink target
@@ -55,51 +65,7 @@ EOF
     fi
 
     # Install documentation
-    cat > "${pkgdir}/usr/share/doc/${pkgname}/README.md" << 'EOF'
-# colcon2deb
-
-Build Debian packages from colcon workspaces using Docker containers.
-
-## Usage
-
-```bash
-colcon2deb --workspace /path/to/workspace --config /path/to/config.yaml
-```
-
-## Configuration
-
-Create a config.yaml file with the following structure:
-
-```yaml
-version: 1
-
-docker:
-  # Option 1: Use existing image
-  image: ros:humble-ros-base
-  
-  # Option 2: Build from Dockerfile
-  # dockerfile: ./Dockerfile
-
-output:
-  directory: ./output
-
-packages:
-  directory: ./config  # Directory with package-specific debian/ folders
-
-build:
-  ros_distro: humble
-  parallel_jobs: 8
-  skip_tests: true
-```
-
-## Example
-
-See example configuration and package configs in `/usr/share/colcon2deb/example/`
-
-## Helper Scripts
-
-The build process uses helper scripts installed in `/usr/share/colcon2deb/helper/`
-EOF
+    install -Dm644 "${srcdir}/README-package.md" "${pkgdir}/usr/share/doc/${pkgname}/README.md"
 
     # Create a simple changelog
     cat > "${pkgdir}/usr/share/doc/${pkgname}/changelog" << EOF

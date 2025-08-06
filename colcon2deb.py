@@ -139,19 +139,14 @@ def main():
 
     # Get the script directory (where this script is located)
     script_dir = Path(__file__).resolve().parent
-
-    # Check if we're running from installed location or development
-    installed_helper_dir = Path("/usr/share/colcon2deb/helper")
-    dev_helper_dir = script_dir / "helper"
-
-    if installed_helper_dir.exists():
-        helper_dir = installed_helper_dir
-    elif dev_helper_dir.exists():
-        helper_dir = dev_helper_dir
-    else:
+    
+    # Helper directory must be in the same directory as this script
+    helper_dir = script_dir / "helper"
+    
+    if not helper_dir.exists():
         print("Error: Helper scripts directory not found", file=sys.stderr)
-        print(f"Checked: {installed_helper_dir}", file=sys.stderr)
-        print(f"Checked: {dev_helper_dir}", file=sys.stderr)
+        print(f"Expected at: {helper_dir}", file=sys.stderr)
+        print("Helper directory must be in the same directory as colcon2deb.py", file=sys.stderr)
         sys.exit(1)
 
     # Get packages configuration directory
