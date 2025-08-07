@@ -44,7 +44,7 @@ pip install pyyaml
 When developing, you can run colcon2deb directly from source:
 
 ```bash
-./colcon2deb --workspace /path/to/workspace --config config.yaml
+./colcon2deb.py --workspace /path/to/workspace --config config.yaml
 ```
 
 The script automatically detects whether it's running from an installed location or source directory.
@@ -82,7 +82,7 @@ make clean
 
 ```
 colcon2deb/
-├── colcon2deb          # Main executable (Python script)
+├── colcon2deb.py       # Main Python script
 ├── helper/             # Bash scripts that run inside Docker
 │   ├── main.sh         # Main orchestrator script
 │   ├── prepare.sh      # Prepare build environment
@@ -93,21 +93,25 @@ colcon2deb/
 ├── example/            # Example configuration
 │   ├── config.yaml     # Example config file
 │   └── config/         # Example package configs
-├── docker/             # Dockerfiles (separate repo)
-├── PKGBUILD           # makedeb package definition
+├── docker/             # Dockerfiles (submodule)
+├── makedeb/            # makedeb packaging files
+│   ├── PKGBUILD       # Package definition
+│   ├── colcon2deb-wrapper.py  # Wrapper script
+│   └── README-package.md       # Package documentation
 └── Makefile           # Build automation
 ```
 
 ## Code Architecture
 
-### Main Script (colcon2deb)
+### Main Script (colcon2deb.py)
 
 The main script handles:
 1. Command-line argument parsing
 2. Configuration file loading and validation
 3. Docker image management (build/pull)
 4. Container execution with proper mounts
-5. Helper script detection (installed vs development)
+
+Note: In the installed package, colcon2deb.py is placed in `/usr/share/colcon2deb/` along with the helper scripts, and a wrapper script is created at `/usr/bin/colcon2deb`.
 
 ### Helper Scripts
 
