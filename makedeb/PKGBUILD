@@ -22,7 +22,7 @@ makedepends=(
 source=(
     "../colcon2deb-${pkgver}.tar.gz"
     "colcon2deb-wrapper.py"
-    "README-package.md"
+    "README.md"
 )
 
 sha256sums=(
@@ -51,21 +51,14 @@ package() {
     # Install example files (excluding docker/ subdirectory)
     cp -r "example/config" "${pkgdir}/usr/share/${pkgname}/example/"
     install -Dm644 "example/config.yaml" "${pkgdir}/usr/share/${pkgname}/example/config.yaml"
-
-    # Copy the example Dockerfile symlink if it exists
-    if [ -L "example/Dockerfile" ]; then
-        # Get the relative path of the symlink target
-        local link_target=$(readlink "example/Dockerfile")
-        # Create a note about the Dockerfile
-        cat > "${pkgdir}/usr/share/${pkgname}/example/Dockerfile.README" << EOF
-The example Dockerfile is a symlink to: ${link_target}
-
-To use it, you'll need to obtain the actual Dockerfile from the colcon2deb repository.
-EOF
+    
+    # Install additional example config if it exists
+    if [ -f "example/config-with-dockerfile.yaml" ]; then
+        install -Dm644 "example/config-with-dockerfile.yaml" "${pkgdir}/usr/share/${pkgname}/example/config-with-dockerfile.yaml"
     fi
 
     # Install documentation
-    install -Dm644 "${srcdir}/README-package.md" "${pkgdir}/usr/share/doc/${pkgname}/README.md"
+    install -Dm644 "${srcdir}/README.md" "${pkgdir}/usr/share/doc/${pkgname}/README.md"
 
     # Create a simple changelog
     cat > "${pkgdir}/usr/share/doc/${pkgname}/changelog" << EOF

@@ -36,7 +36,10 @@ build:
 
 ## Example
 
-See example configuration and package configs in `/usr/share/colcon2deb/example/`
+See example configurations in `/usr/share/colcon2deb/example/`:
+- `config.yaml` - Basic example using pre-built Docker image
+- `config-with-dockerfile.yaml` - Example using custom Dockerfile (requires source repo)
+- `config/` - Example package-specific Debian configurations
 
 ## Helper Scripts
 
