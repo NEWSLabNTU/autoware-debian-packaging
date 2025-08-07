@@ -13,7 +13,7 @@ graph TD
     %% User inputs
     A[Colcon Workspace] --> C[colcon2deb]
     B[config.yaml] --> C
-    E[Package Configs<br/>(Optional)] --> C
+    E[Package Configs<br/>\(Optional\)] --> C
     
     %% Process
     C --> F[Docker Image]
