@@ -10,28 +10,22 @@ Build Debian packages from colcon workspaces using Docker containers.
 
 ```mermaid
 graph TD
-    %% Input files
-    A[Colcon Workspace] -->|Mount as /mount| D[Docker Container]
-    B[config.yaml] -->|Configure| C[colcon2deb]
-    E[Package Configs] -->|Mount as /config| D
+    %% User inputs
+    A[Colcon Workspace] --> C[colcon2deb]
+    B[config.yaml] --> C
+    E[Package Configs<br/>Optional] --> C
     
-    %% Process flow
-    C -->|1. Parse config| F[Build/Pull Docker Image]
-    F -->|2. Start container| D
-    
-    %% Inside container
-    D -->|3. Copy sources| G[Build Directory]
-    G -->|4. Install deps| H[rosdep install]
-    H -->|5. Build| I[colcon build]
-    I -->|6. Generate| J[Debian Control Files]
-    J -->|7. Package| K[dpkg-buildpackage]
-    K -->|8. Output| L[.deb Files]
+    %% Process
+    C --> F[Docker Image]
+    F --> D[Build in Container]
+    D --> L[.deb Files]
     
     %% Styling
     style A fill:#e1f5fe,stroke:#01579b,color:#000
     style B fill:#fff3e0,stroke:#e65100,color:#000
     style E fill:#fff3e0,stroke:#e65100,color:#000
     style C fill:#f3e5f5,stroke:#4a148c,color:#000
+    style F fill:#e8f5e9,stroke:#1b5e20,color:#000
     style D fill:#e8f5e9,stroke:#1b5e20,color:#000
     style L fill:#ffebee,stroke:#b71c1c,color:#000
 ```
