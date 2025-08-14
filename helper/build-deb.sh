@@ -24,7 +24,8 @@ build_deb() {
     truncate -s 0 "$err_file"
 
     # If the Debian package is already built, skip the build.
-    deb_path=$(find "$release_dir" -name ros-${ROS_DISTRO}-${pkg_name_dashed}_'*'.deb | head -n1)
+    # Check in the check_dir (either output_dir if specified, or release_dir)
+    deb_path=$(find "$check_dir" -name ros-${ROS_DISTRO}-${pkg_name_dashed}_'*'.deb 2>/dev/null | head -n1)
     if [ -n "$deb_path" ]; then
 	echo "info: skip $pkg_name that its Debian package is already built"
 	return

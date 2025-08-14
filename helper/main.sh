@@ -92,6 +92,20 @@ export config_dir="/config"
 export release_dir="$top_work_dir/dist"
 export pkg_build_dir="$top_work_dir/build"
 
+# File management strategy:
+# - build_deb/ is a build cache directory (in workspace)
+# - output_dir is for final deliverables only
+# - We always check output_dir for existing packages to avoid duplicates
+# - The dist/ directory in build_deb is just internal staging
+if [ -n "$output_dir" ]; then
+    export check_dir="$output_dir"
+    export final_output_dir="$output_dir"
+else
+    # If no output dir specified, use release_dir as both check and output
+    export check_dir="$release_dir"
+    export final_output_dir="$release_dir"
+fi
+
 export log_dir="$top_work_dir/log"
 export deb_pkgs_file="$log_dir/deb_pkgs.txt"
 export successful_pkgs_file="$log_dir/successful_pkgs.txt"
@@ -141,9 +155,25 @@ source "$colcon_work_dir/install/setup.bash"
 # Build Debian packages
 ./build-deb.sh
 
-# Copy built packages to output directory if specified
-if [ -n "$output_dir" ]; then
-    echo "Copying built packages to $output_dir"
-    cp -v "$release_dir"/*.deb "$output_dir/" 2>/dev/null || true
-    cp -v "$release_dir"/*.ddeb "$output_dir/" 2>/dev/null || true
+# Move built packages to final output directory
+# This ensures output dir only contains the final deliverables
+if [ "$final_output_dir" != "$release_dir" ]; then
+    echo "Moving built packages to $final_output_dir"
+    # Use mv instead of cp to avoid duplication
+    if ls "$release_dir"/*.deb 1> /dev/null 2>&1; then
+        mv -v "$release_dir"/*.deb "$final_output_dir/"
+    fi
+    if ls "$release_dir"/*.ddeb 1> /dev/null 2>&1; then
+        mv -v "$release_dir"/*.ddeb "$final_output_dir/"
+    fi
+else
+    echo "Packages are in: $release_dir"
 fi
+
+# Print summary
+echo ""
+echo "Build Summary:"
+echo "  Cache directory: $top_work_dir"
+echo "  Output directory: $final_output_dir"
+echo "  Successful packages: $(wc -l < "$successful_pkgs_file" 2>/dev/null || echo 0)"
+echo "  Failed packages: $(wc -l < "$failed_pkgs_file" 2>/dev/null || echo 0)"
