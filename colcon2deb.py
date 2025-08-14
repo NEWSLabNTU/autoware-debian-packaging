@@ -170,6 +170,23 @@ def main():
         )
         sys.exit(1)
 
+    # Get output directory configuration
+    output_config = config.get("output", {})
+    if "directory" not in output_config:
+        print("Error: 'output.directory' not specified in config", file=sys.stderr)
+        sys.exit(1)
+
+    output_dir = Path(output_config["directory"])
+    if not output_dir.is_absolute():
+        # Relative to config file
+        output_dir = Path(args.config).parent / output_dir
+
+    # Ensure absolute path for Docker
+    output_dir = output_dir.resolve()
+
+    # Create output directory if it doesn't exist
+    output_dir.mkdir(parents=True, exist_ok=True)
+
     # Prepare Docker run command
     docker_cmd = [
         "docker",
@@ -189,16 +206,20 @@ def main():
         f"{packages_dir}:/config",
         "-v",
         f"{helper_dir}:/helper",
+        "-v",
+        f"{output_dir}:/output",
         image_name,
         "/helper/entry.sh",
         f"--uid={uid}",
         f"--gid={gid}",
+        f"--output=/output",
     ]
 
     # Run the container
     print(f"\nStarting container:")
     print(f"  Workspace directory: {workspace_dir} -> /mount")
     print(f"  Packages config directory: {packages_dir} -> /config")
+    print(f"  Output directory: {output_dir} -> /output")
     print(f"  Helper directory: {helper_dir} -> /helper")
     print(f"  Using image: {image_name}")
 

@@ -5,7 +5,7 @@ script_dir=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 # Parse options using getopt
 OPTIONS=h
-LONGOPTIONS=help,uid:,gid:
+LONGOPTIONS=help,uid:,gid:,output:
 PARSED=$(getopt --options "$OPTIONS" --longoptions "$LONGOPTIONS" --name "$0" -- "$@")
 
 # Check if getopt failed
@@ -19,9 +19,10 @@ eval set -- "$PARSED"
 # Parse arguments
 uid=
 gid=
+output=
 
 print_usage() {
-    echo "Usage: $0 --uid=UID --gid=GID"
+    echo "Usage: $0 --uid=UID --gid=GID [--output=OUTPUT_DIR]"
 }
 
 while true; do
@@ -36,6 +37,10 @@ while true; do
 	    ;;
 	--gid)
 	    gid="$2"
+	    shift 2
+	    ;;
+	--output)
+	    output="$2"
 	    shift 2
 	    ;;
 	--)
@@ -66,5 +71,10 @@ sudo mkdir /workspace
 chown -R "$name:$name" /workspace
 
 # Run the build script
-sudo -u ubuntu \
-     bash -c "rosdep update && '$script_dir/main.sh' --repo=/mount"
+if [ -n "$output" ]; then
+    sudo -u ubuntu \
+         bash -c "rosdep update && '$script_dir/main.sh' --repo=/mount --output='$output'"
+else
+    sudo -u ubuntu \
+         bash -c "rosdep update && '$script_dir/main.sh' --repo=/mount"
+fi

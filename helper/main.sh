@@ -3,7 +3,7 @@ set -e
 
 # Parse options using getopt
 OPTIONS=h
-LONGOPTIONS=help,skip-rosdep-install,skip-copy-src,skip-gen-rosdep-list,skip-colcon-build,repo:
+LONGOPTIONS=help,skip-rosdep-install,skip-copy-src,skip-gen-rosdep-list,skip-colcon-build,repo:,output:
 PARSED=$(getopt --options "$OPTIONS" --longoptions "$LONGOPTIONS" --name "$0" -- "$@")
 
 # Check if getopt failed
@@ -20,6 +20,7 @@ export gen_rosdep_list=y
 export copy_src=y
 export colcon_build=y
 export repo_dir=
+export output_dir=
 
 print_usage() {
     echo "Usage: $0 [OPTION]... --repo=REPO_DIR"
@@ -28,6 +29,7 @@ print_usage() {
     echo "  --skip-copy-src             do not copy source files to the build cache"
     echo "  --skip-gen-rosdep-list      do not modify the system rosdep list"
     echo "  --skip-colcon-build         do not run `colcon build`"
+    echo "  --output=OUTPUT_DIR         specify output directory for .deb files"
 }
 
 while true; do
@@ -54,6 +56,10 @@ while true; do
 	    ;;
 	--repo)
 	    repo_dir="$2"
+	    shift 2
+	    ;;
+	--output)
+	    output_dir="$2"
 	    shift 2
 	    ;;
 	--)
@@ -134,3 +140,10 @@ source "$colcon_work_dir/install/setup.bash"
 
 # Build Debian packages
 ./build-deb.sh
+
+# Copy built packages to output directory if specified
+if [ -n "$output_dir" ]; then
+    echo "Copying built packages to $output_dir"
+    cp -v "$release_dir"/*.deb "$output_dir/" 2>/dev/null || true
+    cp -v "$release_dir"/*.ddeb "$output_dir/" 2>/dev/null || true
+fi
