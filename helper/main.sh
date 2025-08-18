@@ -83,6 +83,9 @@ fi
 export script_dir=$(cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd)
 export repo_dir=$(realpath "$repo_dir")
 
+# Set ROS distribution (default to humble for Autoware)
+export ROS_DISTRO=${ROS_DISTRO:-humble}
+
 # Set working directory to the parent of this script.
 cd "$script_dir"
 
@@ -110,6 +113,7 @@ export log_dir="$top_work_dir/log"
 export deb_pkgs_file="$log_dir/deb_pkgs.txt"
 export successful_pkgs_file="$log_dir/successful_pkgs.txt"
 export failed_pkgs_file="$log_dir/failed_pkgs.txt"
+export skipped_pkgs_file="$log_dir/skipped_pkgs.txt"
 
 # export generate_debian_script="$script_dir/generate-debian.sh"
 export rosdep_gen_script="$script_dir/generate-rosdep-commands.sh"
@@ -155,25 +159,157 @@ source "$colcon_work_dir/install/setup.bash"
 # Build Debian packages
 ./build-deb.sh
 
-# Move built packages to final output directory
-# This ensures output dir only contains the final deliverables
+# Move ALL packages to final output directory (including any from previous incomplete runs)
+# This ensures output dir contains all deliverables and nothing is orphaned
 if [ "$final_output_dir" != "$release_dir" ]; then
-    echo "Moving built packages to $final_output_dir"
-    # Use mv instead of cp to avoid duplication
-    if ls "$release_dir"/*.deb 1> /dev/null 2>&1; then
-        mv -v "$release_dir"/*.deb "$final_output_dir/"
-    fi
-    if ls "$release_dir"/*.ddeb 1> /dev/null 2>&1; then
-        mv -v "$release_dir"/*.ddeb "$final_output_dir/"
+    echo "Syncing packages to $final_output_dir"
+
+    # Count packages before move
+    deb_count_before=$(find "$release_dir" -name "*.deb" 2>/dev/null | wc -l)
+    ddeb_count_before=$(find "$release_dir" -name "*.ddeb" 2>/dev/null | wc -l)
+    echo "  Found $deb_count_before .deb and $ddeb_count_before .ddeb files in release dir"
+
+    # Move all .deb files (including orphaned ones from previous runs)
+    moved_count=0
+    skipped_count=0
+
+    # Move .deb files
+    shopt -s nullglob  # Make glob return empty if no matches
+    for deb in "$release_dir"/*.deb; do
+        basename_deb=$(basename "$deb")
+
+        # Check if file already exists in output
+        if [ -f "$final_output_dir/$basename_deb" ]; then
+            echo "  Skipping (already exists): $basename_deb"
+            rm -f "$deb"  # Remove from release dir since it's already in output
+            skipped_count=$((skipped_count + 1))
+        else
+            echo "  Moving: $basename_deb"
+            mv -v "$deb" "$final_output_dir/" || echo "    ERROR: Failed to move $deb"
+            moved_count=$((moved_count + 1))
+        fi
+    done
+
+    # Move all .ddeb files
+    for ddeb in "$release_dir"/*.ddeb; do
+        if [ -f "$ddeb" ]; then
+            basename_ddeb=$(basename "$ddeb")
+            if [ ! -f "$final_output_dir/$basename_ddeb" ]; then
+                mv -v "$ddeb" "$final_output_dir/" || echo "    ERROR: Failed to move $ddeb"
+            else
+                rm -f "$ddeb"  # Remove duplicate
+            fi
+        fi
+    done
+    shopt -u nullglob  # Reset nullglob
+
+    echo "  Moved $moved_count new packages, skipped $skipped_count existing"
+
+    # Final check - ensure nothing is left behind
+    deb_count_after=$(find "$release_dir" -name "*.deb" 2>/dev/null | wc -l)
+    if [ "$deb_count_after" -gt 0 ]; then
+        echo "  WARNING: $deb_count_after .deb files still in $release_dir after sync!"
+        echo "  Orphaned files:"
+        find "$release_dir" -name "*.deb" -exec basename {} \; | sed 's/^/    - /'
     fi
 else
     echo "Packages are in: $release_dir"
 fi
 
-# Print summary
+# Print detailed summary
 echo ""
-echo "Build Summary:"
-echo "  Cache directory: $top_work_dir"
+echo "==============================================="
+echo "           BUILD SUMMARY                      "
+echo "==============================================="
+
+# Count packages
+total_pkgs=$(wc -l < "$deb_pkgs_file" 2>/dev/null || echo 0)
+successful_pkgs=$(wc -l < "$successful_pkgs_file" 2>/dev/null || echo 0)
+failed_pkgs=$(wc -l < "$failed_pkgs_file" 2>/dev/null || echo 0)
+skipped_pkgs=$(wc -l < "$skipped_pkgs_file" 2>/dev/null || echo 0)
+output_debs=$(find "$final_output_dir" -name "*.deb" 2>/dev/null | wc -l || echo 0)
+
+echo ""
+echo "📊 Package Statistics:"
+echo "  Total packages found:      $total_pkgs"
+echo "  ⏭️  Previously built:       $skipped_pkgs (skipped)"
+echo "  ✅ Successfully built:     $successful_pkgs (new)"
+echo "  ❌ Failed to build:        $failed_pkgs"
+echo "  📦 Output .deb files:      $output_debs"
+
+# Calculate build success rate (for packages that were actually built, not skipped)
+attempted_pkgs=$((successful_pkgs + failed_pkgs))
+if [ "$attempted_pkgs" -gt 0 ]; then
+    build_success_rate=$(( successful_pkgs * 100 / attempted_pkgs ))
+    echo "  Build success rate:        ${build_success_rate}% (of $attempted_pkgs attempted)"
+fi
+
+# Calculate overall completion rate
+completed_pkgs=$((successful_pkgs + skipped_pkgs))
+if [ "$total_pkgs" -gt 0 ]; then
+    completion_rate=$(( completed_pkgs * 100 / total_pkgs ))
+    echo "  Overall completion:        ${completion_rate}% ($completed_pkgs/$total_pkgs)"
+fi
+
+# Sanity check
+accounted_pkgs=$((successful_pkgs + failed_pkgs + skipped_pkgs))
+if [ "$accounted_pkgs" -ne "$total_pkgs" ]; then
+    unaccounted=$((total_pkgs - accounted_pkgs))
+    echo "  ⚠️  Unaccounted packages:   $unaccounted"
+fi
+
+echo ""
+echo "📁 Directories:"
+echo "  Cache directory:  $top_work_dir"
 echo "  Output directory: $final_output_dir"
-echo "  Successful packages: $(wc -l < "$successful_pkgs_file" 2>/dev/null || echo 0)"
-echo "  Failed packages: $(wc -l < "$failed_pkgs_file" 2>/dev/null || echo 0)"
+echo "  Log directory:    $log_dir"
+
+# Show failed packages if any
+if [ "$failed_pkgs" -gt 0 ]; then
+    echo ""
+    echo "❌ Failed Packages (first 10):"
+    head -10 "$failed_pkgs_file" | while read pkg; do
+        echo "  - $pkg"
+        # Check if error log exists
+        err_file="$pkg_build_dir/$pkg/build.err"
+        if [ -f "$err_file" ] && [ -s "$err_file" ]; then
+            echo "    → Error log: $err_file"
+        fi
+    done
+
+    if [ "$failed_pkgs" -gt 10 ]; then
+        echo "  ... and $((failed_pkgs - 10)) more"
+    fi
+
+    echo ""
+    echo "💡 To investigate failures:"
+    echo "  1. Check individual error logs:"
+    echo "     cat $pkg_build_dir/PACKAGE_NAME/build.err"
+    echo "  2. View complete failed list:"
+    echo "     cat $failed_pkgs_file"
+    echo "  3. Run diagnostic tool:"
+    echo "     ./check-build-results.py --workspace $repo_dir --output $final_output_dir"
+fi
+
+echo ""
+echo "==============================================="
+
+# Exit with appropriate code
+if [ "$failed_pkgs" -gt 0 ]; then
+    echo "⚠️  Build completed with failures"
+    echo ""
+    echo "Next steps:"
+    echo "  1. Check build logs for failed packages"
+    echo "  2. Try installing successfully built packages:"
+    echo "     ./install-partial.py --config CONFIG --mode safe"
+    exit 1
+else
+    echo "✅ Build completed successfully!"
+    echo ""
+    echo "Next steps:"
+    echo "  1. Install packages:"
+    echo "     ./install-packages.py --config CONFIG"
+    echo "  2. Test installation:"
+    echo "     ./test-installation.sh --config CONFIG"
+    exit 0
+fi

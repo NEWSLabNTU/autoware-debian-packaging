@@ -3,6 +3,7 @@ echo 'info: prepare working directories'
 truncate -s 0 "$deb_pkgs_file" 2>/dev/null
 truncate -s 0 "$successful_pkgs_file" 2>/dev/null
 truncate -s 0 "$failed_pkgs_file" 2>/dev/null
+truncate -s 0 "$skipped_pkgs_file" 2>/dev/null
 
 mkdir -p "$top_work_dir"
 mkdir -p "$colcon_work_dir"
@@ -17,7 +18,7 @@ clean_work_dir() {
     set -e
     work_dir=$1
     shift
-    mkdir -p "$work_dir" 
+    mkdir -p "$work_dir"
     rm -f "$work_dir"/*.out "$work_dir"/*.err
 }
 export -f clean_work_dir
