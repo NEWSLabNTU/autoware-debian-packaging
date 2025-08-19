@@ -3,7 +3,7 @@ set -e
 
 # Parse options using getopt
 OPTIONS=h
-LONGOPTIONS=help,skip-rosdep-install,skip-copy-src,skip-gen-rosdep-list,skip-colcon-build,repo:,output:
+LONGOPTIONS=help,skip-rosdep-install,skip-copy-src,skip-gen-rosdep-list,skip-colcon-build,workspace:,output:
 PARSED=$(getopt --options "$OPTIONS" --longoptions "$LONGOPTIONS" --name "$0" -- "$@")
 
 # Check if getopt failed
@@ -19,17 +19,18 @@ export rosdep_install=y
 export gen_rosdep_list=y
 export copy_src=y
 export colcon_build=y
-export repo_dir=
+export workspace_dir=
 export output_dir=
 
 print_usage() {
-    echo "Usage: $0 [OPTION]... --repo=REPO_DIR"
+    echo "Usage: $0 [OPTION]... --workspace=WORKSPACE_DIR --output=OUTPUT_DIR"
     echo "  -h,--help                   show this help message"
     echo "  --skip-rosdep-install       do not run `rosdep install`"
     echo "  --skip-copy-src             do not copy source files to the build cache"
     echo "  --skip-gen-rosdep-list      do not modify the system rosdep list"
     echo "  --skip-colcon-build         do not run `colcon build`"
-    echo "  --output=OUTPUT_DIR         specify output directory for .deb files"
+    echo "  --workspace=WORKSPACE_DIR   source workspace directory"
+    echo "  --output=OUTPUT_DIR         output directory for build artifacts and .deb files"
 }
 
 while true; do
@@ -54,8 +55,8 @@ while true; do
 	    colcon_build=n
 	    shift 1
 	    ;;
-	--repo)
-	    repo_dir="$2"
+	--workspace)
+	    workspace_dir="$2"
 	    shift 2
 	    ;;
 	--output)
@@ -74,14 +75,16 @@ while true; do
     esac
 done
 
-if [ -z "$repo_dir" ]; then
-    echo "--repo REPO_DIR must be provided" >&2
-    exit
+if [ -z "$workspace_dir" ] || [ -z "$output_dir" ]; then
+    echo "Both --workspace and --output must be provided" >&2
+    print_usage >&2
+    exit 1
 fi
 
 # Locate utility scripts
 export script_dir=$(cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd)
-export repo_dir=$(realpath "$repo_dir")
+export workspace_dir=$(realpath "$workspace_dir")
+export output_dir=$(realpath "$output_dir")
 
 # Set ROS distribution (default to humble for Autoware)
 export ROS_DISTRO=${ROS_DISTRO:-humble}
@@ -89,25 +92,19 @@ export ROS_DISTRO=${ROS_DISTRO:-humble}
 # Set working directory to the parent of this script.
 cd "$script_dir"
 
-export top_work_dir="$repo_dir/build_deb"
+# All build artifacts go directly in the output directory
+export top_work_dir="$output_dir"
 export colcon_work_dir="$top_work_dir/sources"
 export config_dir="/config"
 export release_dir="$top_work_dir/dist"
 export pkg_build_dir="$top_work_dir/build"
 
 # File management strategy:
-# - build_deb/ is a build cache directory (in workspace)
-# - output_dir is for final deliverables only
-# - We always check output_dir for existing packages to avoid duplicates
-# - The dist/ directory in build_deb is just internal staging
-if [ -n "$output_dir" ]; then
-    export check_dir="$output_dir"
-    export final_output_dir="$output_dir"
-else
-    # If no output dir specified, use release_dir as both check and output
-    export check_dir="$release_dir"
-    export final_output_dir="$release_dir"
-fi
+# - All build artifacts go directly in the output directory
+# - The dist/ subdirectory contains the final .deb packages
+# - We check dist/ for existing packages to avoid rebuilding
+export check_dir="$release_dir"
+export final_output_dir="$release_dir"
 
 export log_dir="$top_work_dir/log"
 export deb_pkgs_file="$log_dir/deb_pkgs.txt"
@@ -159,62 +156,8 @@ source "$colcon_work_dir/install/setup.bash"
 # Build Debian packages
 ./build-deb.sh
 
-# Move ALL packages to final output directory (including any from previous incomplete runs)
-# This ensures output dir contains all deliverables and nothing is orphaned
-if [ "$final_output_dir" != "$release_dir" ]; then
-    echo "Syncing packages to $final_output_dir"
-
-    # Count packages before move
-    deb_count_before=$(find "$release_dir" -name "*.deb" 2>/dev/null | wc -l)
-    ddeb_count_before=$(find "$release_dir" -name "*.ddeb" 2>/dev/null | wc -l)
-    echo "  Found $deb_count_before .deb and $ddeb_count_before .ddeb files in release dir"
-
-    # Move all .deb files (including orphaned ones from previous runs)
-    moved_count=0
-    skipped_count=0
-
-    # Move .deb files
-    shopt -s nullglob  # Make glob return empty if no matches
-    for deb in "$release_dir"/*.deb; do
-        basename_deb=$(basename "$deb")
-
-        # Check if file already exists in output
-        if [ -f "$final_output_dir/$basename_deb" ]; then
-            echo "  Skipping (already exists): $basename_deb"
-            rm -f "$deb"  # Remove from release dir since it's already in output
-            skipped_count=$((skipped_count + 1))
-        else
-            echo "  Moving: $basename_deb"
-            mv -v "$deb" "$final_output_dir/" || echo "    ERROR: Failed to move $deb"
-            moved_count=$((moved_count + 1))
-        fi
-    done
-
-    # Move all .ddeb files
-    for ddeb in "$release_dir"/*.ddeb; do
-        if [ -f "$ddeb" ]; then
-            basename_ddeb=$(basename "$ddeb")
-            if [ ! -f "$final_output_dir/$basename_ddeb" ]; then
-                mv -v "$ddeb" "$final_output_dir/" || echo "    ERROR: Failed to move $ddeb"
-            else
-                rm -f "$ddeb"  # Remove duplicate
-            fi
-        fi
-    done
-    shopt -u nullglob  # Reset nullglob
-
-    echo "  Moved $moved_count new packages, skipped $skipped_count existing"
-
-    # Final check - ensure nothing is left behind
-    deb_count_after=$(find "$release_dir" -name "*.deb" 2>/dev/null | wc -l)
-    if [ "$deb_count_after" -gt 0 ]; then
-        echo "  WARNING: $deb_count_after .deb files still in $release_dir after sync!"
-        echo "  Orphaned files:"
-        find "$release_dir" -name "*.deb" -exec basename {} \; | sed 's/^/    - /'
-    fi
-else
-    echo "Packages are in: $release_dir"
-fi
+# Since we're working directly in the output directory, packages are already in the right place
+echo "Packages are in: $release_dir"
 
 # Print detailed summary
 echo ""
@@ -260,9 +203,9 @@ fi
 
 echo ""
 echo "📁 Directories:"
-echo "  Cache directory:  $top_work_dir"
-echo "  Output directory: $final_output_dir"
-echo "  Log directory:    $log_dir"
+echo "  Output directory:  $top_work_dir"
+echo "  Packages directory: $release_dir"
+echo "  Log directory:     $log_dir"
 
 # Show failed packages if any
 if [ "$failed_pkgs" -gt 0 ]; then
@@ -288,7 +231,7 @@ if [ "$failed_pkgs" -gt 0 ]; then
     echo "  2. View complete failed list:"
     echo "     cat $failed_pkgs_file"
     echo "  3. Run diagnostic tool:"
-    echo "     ./check-build-results.py --workspace $repo_dir --output $final_output_dir"
+    echo "     ./check-build-results.py --workspace $workspace_dir --output $top_work_dir"
 fi
 
 echo ""

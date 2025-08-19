@@ -139,10 +139,10 @@ def main():
 
     # Get the script directory (where this script is located)
     script_dir = Path(__file__).resolve().parent
-    
+
     # Helper directory must be in the same directory as this script
     helper_dir = script_dir / "helper"
-    
+
     if not helper_dir.exists():
         print("Error: Helper scripts directory not found", file=sys.stderr)
         print(f"Expected at: {helper_dir}", file=sys.stderr)
@@ -170,7 +170,7 @@ def main():
         )
         sys.exit(1)
 
-    # Get output directory configuration
+    # Get output directory configuration - this will be our main working directory
     output_config = config.get("output", {})
     if "directory" not in output_config:
         print("Error: 'output.directory' not specified in config", file=sys.stderr)
@@ -187,6 +187,9 @@ def main():
     # Create output directory if it doesn't exist
     output_dir.mkdir(parents=True, exist_ok=True)
 
+    # The build_deb directory will be created inside the output directory
+    # Users will find packages in output_dir/dist/
+
     # Prepare Docker run command
     docker_cmd = [
         "docker",
@@ -201,7 +204,7 @@ def main():
         "-v",
         "/tmp/.X11-unix/:/tmp/.X11-unix",
         "-v",
-        f"{workspace_dir}:/mount",
+        f"{workspace_dir}:/workspace",
         "-v",
         f"{packages_dir}:/config",
         "-v",
@@ -217,11 +220,13 @@ def main():
 
     # Run the container
     print(f"\nStarting container:")
-    print(f"  Workspace directory: {workspace_dir} -> /mount")
+    print(f"  Workspace directory: {workspace_dir} -> /workspace")
     print(f"  Packages config directory: {packages_dir} -> /config")
     print(f"  Output directory: {output_dir} -> /output")
     print(f"  Helper directory: {helper_dir} -> /helper")
     print(f"  Using image: {image_name}")
+    print(f"\n  Build artifacts will be in: {output_dir}/")
+    print(f"  Final .deb packages will be in: {output_dir}/dist/")
 
     try:
         subprocess.run(docker_cmd)

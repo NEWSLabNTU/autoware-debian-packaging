@@ -67,14 +67,10 @@ groupadd -g "$gid" "$name"
 useradd -m -u "$uid" -g "$gid" "$name"
 usermod -aG sudo "$name"
 passwd -d "$name"
-sudo mkdir /workspace
+# /workspace is mounted from host, just fix permissions
 chown -R "$name:$name" /workspace
 
 # Run the build script
-if [ -n "$output" ]; then
-    sudo -u ubuntu \
-         bash -c "rosdep update && '$script_dir/main.sh' --repo=/mount --output='$output'"
-else
-    sudo -u ubuntu \
-         bash -c "rosdep update && '$script_dir/main.sh' --repo=/mount"
-fi
+# Both workspace and output are always required now
+sudo -u ubuntu \
+     bash -c "rosdep update && '$script_dir/main.sh' --workspace=/workspace --output='$output'"
