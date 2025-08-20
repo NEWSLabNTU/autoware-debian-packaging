@@ -6,6 +6,12 @@ import os
 import subprocess
 import sys
 import yaml
+import tempfile
+import urllib.request
+import urllib.error
+import hashlib
+import shutil
+import atexit
 from pathlib import Path
 
 
@@ -20,15 +26,85 @@ def run_command(cmd, check=True):
     return result
 
 
-def build_image_from_dockerfile(dockerfile_path, image_name):
+def download_dockerfile(url, cache_dir=None):
+    """Download Dockerfile from HTTP/HTTPS URL."""
+    print(f"\nDownloading Dockerfile from URL...")
+    print(f"  URL: {url}")
+
+    # Create cache directory if specified
+    if cache_dir:
+        cache_dir = Path(cache_dir)
+        cache_dir.mkdir(parents=True, exist_ok=True)
+
+        # Generate cache filename based on URL hash
+        url_hash = hashlib.md5(url.encode()).hexdigest()[:8]
+        cached_file = cache_dir / f"Dockerfile.{url_hash}"
+
+        # Check if cached file exists
+        if cached_file.exists():
+            print(f"  ✓ Using cached Dockerfile")
+            print(f"  Cache location: {cached_file}")
+            return cached_file
+
+    try:
+        print(f"  Fetching from remote...")
+        # Download the file
+        request = urllib.request.Request(url, headers={"User-Agent": "colcon2deb/1.0"})
+        with urllib.request.urlopen(request, timeout=30) as response:
+            content = response.read()
+            content_length = len(content)
+
+        # Validate it looks like a Dockerfile
+        content_str = content.decode("utf-8", errors="ignore")
+        if not ("FROM" in content_str or "ARG" in content_str):
+            print(
+                f"  ⚠️  Warning: Downloaded content may not be a valid Dockerfile",
+                file=sys.stderr,
+            )
+
+        print(f"  ✓ Downloaded {content_length} bytes")
+
+        # Save to temporary file or cache
+        if cache_dir and cached_file:
+            cached_file.write_bytes(content)
+            print(f"  ✓ Cached for future use")
+            print(f"  Cache location: {cached_file}")
+            return cached_file
+        else:
+            # Create temporary file
+            with tempfile.NamedTemporaryFile(
+                mode="wb", suffix=".Dockerfile", delete=False
+            ) as tmp_file:
+                tmp_file.write(content)
+                temp_path = Path(tmp_file.name)
+                print(f"  ✓ Saved to temporary location")
+                return temp_path
+
+    except urllib.error.HTTPError as e:
+        print(f"\n❌ HTTP Error {e.code}: {e.reason}", file=sys.stderr)
+        print(f"   URL: {url}", file=sys.stderr)
+        sys.exit(1)
+    except urllib.error.URLError as e:
+        print(f"\n❌ Network Error: {e.reason}", file=sys.stderr)
+        print(f"   Please check your internet connection and the URL", file=sys.stderr)
+        sys.exit(1)
+    except Exception as e:
+        print(f"\n❌ Unexpected error: {e}", file=sys.stderr)
+        sys.exit(1)
+
+
+def build_image_from_dockerfile(dockerfile_path, image_name, build_context=None):
     """Build Docker image from Dockerfile."""
     dockerfile_path = Path(dockerfile_path).resolve()
     if not dockerfile_path.exists():
         print(f"Error: Dockerfile not found at {dockerfile_path}", file=sys.stderr)
         sys.exit(1)
 
-    # Build context is the parent directory of the Dockerfile
-    build_context = dockerfile_path.parent
+    # Use provided build context or default to parent directory of Dockerfile
+    if build_context:
+        build_context = Path(build_context).resolve()
+    else:
+        build_context = dockerfile_path.parent
 
     cmd = [
         "docker",
@@ -41,6 +117,7 @@ def build_image_from_dockerfile(dockerfile_path, image_name):
     ]
 
     print(f"Building Docker image '{image_name}' from {dockerfile_path}")
+    print(f"Build context: {build_context}")
     run_command(cmd)
     return image_name
 
@@ -113,15 +190,61 @@ def main():
 
     # Determine the image to use
     if "dockerfile" in docker_config:
-        dockerfile_path = Path(docker_config["dockerfile"])
-        if not dockerfile_path.is_absolute():
-            # Relative to config file
-            dockerfile_path = Path(args.config).parent / dockerfile_path
-        # Ensure absolute path
-        dockerfile_path = dockerfile_path.resolve()
-        image_name = build_image_from_dockerfile(
-            dockerfile_path, docker_config.get("image_name", "colcon2deb_builder")
-        )
+        dockerfile_value = docker_config["dockerfile"]
+
+        # Check if it's a URL
+        if dockerfile_value.startswith(("http://", "https://")):
+            print("\n" + "=" * 60)
+            print("Remote Dockerfile Configuration Detected")
+            print("=" * 60)
+
+            # Download Dockerfile from URL
+            # Use cache directory in user's home or temp
+            cache_dir = Path.home() / ".cache" / "colcon2deb" / "dockerfiles"
+            dockerfile_path = download_dockerfile(dockerfile_value, cache_dir)
+
+            # For remote Dockerfiles, use a minimal build context
+            # Create a temporary directory with just the Dockerfile
+            temp_context = tempfile.mkdtemp(prefix="colcon2deb_context_")
+
+            print(f"\nPreparing build context...")
+            print(f"  Temporary context: {temp_context}")
+
+            # Register cleanup function to remove temp directory
+            def cleanup_temp_context():
+                if Path(temp_context).exists():
+                    shutil.rmtree(temp_context, ignore_errors=True)
+
+            atexit.register(cleanup_temp_context)
+
+            temp_dockerfile = Path(temp_context) / "Dockerfile"
+            temp_dockerfile.write_bytes(dockerfile_path.read_bytes())
+
+            image_name = build_image_from_dockerfile(
+                temp_dockerfile,
+                docker_config.get("image_name", "colcon2deb_builder"),
+                build_context=temp_context,
+            )
+        else:
+            # Local Dockerfile path
+            dockerfile_path = Path(dockerfile_value)
+            if not dockerfile_path.is_absolute():
+                # Relative to config file
+                dockerfile_path = Path(args.config).parent / dockerfile_path
+            # Ensure absolute path
+            dockerfile_path = dockerfile_path.resolve()
+
+            # Check if a build context is specified
+            build_context = docker_config.get("build_context")
+            if build_context:
+                if not Path(build_context).is_absolute():
+                    build_context = Path(args.config).parent / build_context
+
+            image_name = build_image_from_dockerfile(
+                dockerfile_path,
+                docker_config.get("image_name", "colcon2deb_builder"),
+                build_context=build_context,
+            )
     else:
         image_name = docker_config["image"]
 
@@ -146,7 +269,10 @@ def main():
     if not helper_dir.exists():
         print("Error: Helper scripts directory not found", file=sys.stderr)
         print(f"Expected at: {helper_dir}", file=sys.stderr)
-        print("Helper directory must be in the same directory as colcon2deb.py", file=sys.stderr)
+        print(
+            "Helper directory must be in the same directory as colcon2deb.py",
+            file=sys.stderr,
+        )
         sys.exit(1)
 
     # Get packages configuration directory
