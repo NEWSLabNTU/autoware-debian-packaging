@@ -7,7 +7,6 @@ sudo apt update
 if [ "$rosdep_install" = y ]; then
     echo 'info: install dependencies'
     ./generate-rosdep-commands.sh | parallel --tty
-    ./extra-deps.sh
 else
     echo 'info: skip installing dependencies'
 fi

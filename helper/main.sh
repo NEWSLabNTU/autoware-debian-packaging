@@ -114,7 +114,6 @@ export skipped_pkgs_file="$log_dir/skipped_pkgs.txt"
 
 # export generate_debian_script="$script_dir/generate-debian.sh"
 export rosdep_gen_script="$script_dir/generate-rosdep-commands.sh"
-export extra_deps_script="$script_dir/extra-deps.sh"
 export make_deb_script="$script_dir/make-deb.sh"
 
 make_pkg_work_dir() {
