@@ -1,0 +1,22 @@
+# Test configuration for local Dockerfile functionality
+version: 1
+
+# Docker configuration with local Dockerfile
+docker:
+  # This path is relative to the config file location
+  dockerfile: ../../docker/0.45.1/amd64/Dockerfile
+  image_name: test_local_builder
+
+# Output configuration
+output:
+  directory: ./test-output
+
+# Package configurations
+packages:
+  directory: ./test-configs
+
+# Build options
+build:
+  ros_distro: humble
+  parallel_jobs: 4
+  skip_tests: true

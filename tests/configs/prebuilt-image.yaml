@@ -1,0 +1,20 @@
+# Test configuration for pre-built Docker image
+version: 1
+
+# Docker configuration with pre-built image
+docker:
+  image: ros:humble-ros-base
+
+# Output configuration
+output:
+  directory: ./test-output
+
+# Package configurations
+packages:
+  directory: ./test-configs
+
+# Build options
+build:
+  ros_distro: humble
+  parallel_jobs: 4
+  skip_tests: true

@@ -1,0 +1,22 @@
+# Test configuration for remote Dockerfile functionality
+version: 1
+
+# Docker configuration with remote Dockerfile
+docker:
+  # Test with a known working Dockerfile URL
+  dockerfile: https://raw.githubusercontent.com/NEWSLabNTU/autoware-build-images/refs/heads/main/0.45.1/amd64/Dockerfile
+  image_name: test_remote_builder
+
+# Output configuration
+output:
+  directory: ./test-output
+
+# Package configurations
+packages:
+  directory: ./test-configs
+
+# Build options
+build:
+  ros_distro: humble
+  parallel_jobs: 4
+  skip_tests: true
