@@ -2,7 +2,11 @@ echo 'info: generate Debian package list'
 
 cd "$colcon_work_dir"
 
-colcon info --base-paths src | awk '\
+# Detect Ubuntu codename
+ubuntu_codename=$(lsb_release -cs 2>/dev/null || echo "jammy")
+echo "info: detected Ubuntu codename: $ubuntu_codename"
+
+colcon info --base-paths src | awk -v codename="$ubuntu_codename" '\
 $0 ~ /^  name: / {
   name = $2
   gsub("_", "-", name)
@@ -11,6 +15,6 @@ $0 ~ /^  name: / {
 
 $0 ~ /^    version: / {
   version=$2
-  printf "%s=%s-0jammy\n", name, version
+  printf "%s=%s-0%s\n", name, version, codename
 }
 '  > "$deb_pkgs_file"
