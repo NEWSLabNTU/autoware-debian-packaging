@@ -30,14 +30,20 @@ export -f clean_work_dir
 # This will be populated by copy-src.sh later
 if [ -d "$colcon_work_dir/src" ]; then
     cd "$colcon_work_dir"
+    # Directory creation is I/O bound, use fewer parallel jobs
+    njobs_io=$(( ( $(nproc) + 1 ) / 2 ))
+
+    # Use unique semaphore ID for this operation
+    sem_id="prepare_$$_${RANDOM}"
+
     colcon list --base-paths src | cut -f1-2 | \
         while read -r pkg_name pkg_dir; do
 	    # Prepare the working directory for the package
 	    pkg_dir=$(realpath "$pkg_dir")
 	    pkg_work_dir="$(make_pkg_work_dir $pkg_name)"
-	    sem --id $$ "-j$(nproc)" clean_work_dir "$pkg_work_dir"
+	    sem --id "$sem_id" "-j${njobs_io}" clean_work_dir "$pkg_work_dir"
         done
-    sem --id $$ --wait
+    sem --id "$sem_id" --wait
 else
     echo "info: skipping package directory cleanup (src not yet copied)"
 fi

@@ -2,8 +2,10 @@
 cd "$colcon_work_dir"
 echo 'info: build Debian packages'
 
+# Use 1/4 of CPU cores for parallel package builds to avoid resource exhaustion
+# Each package build itself uses parallel compilation via DEB_BUILD_OPTIONS
 njobs=$(( ( $(nproc) + 3 ) / 4 ))
-export DEB_BUILD_OPTIONS="parallel=$(nproc)" # Enable parallel compilation
+export DEB_BUILD_OPTIONS="parallel=$(nproc)" # Enable parallel compilation within each package
 
 build_deb() {
     # Use set -e for proper error handling
@@ -82,9 +84,12 @@ build_deb() {
 }
 export -f build_deb
 
+# Use unique semaphore ID for package builds to avoid blocking other scripts
+sem_id="build_deb_$$_${RANDOM}"
+
 colcon list --base-paths src | cut -f1-2 | \
     while read -r pkg_name pkg_dir; do
 	pkg_dir=$(realpath "$pkg_dir")
-	sem --id $$ "-j${njobs}" build_deb "$pkg_name" "$pkg_dir"
+	sem --id "$sem_id" "-j${njobs}" build_deb "$pkg_name" "$pkg_dir"
     done
-sem --id $$ --wait
+sem --id "$sem_id" --wait

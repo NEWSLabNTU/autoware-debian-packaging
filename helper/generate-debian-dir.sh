@@ -42,10 +42,17 @@ copy_or_create_debian_dir() {
 }
 export -f copy_or_create_debian_dir
 
+# Use fewer parallel jobs for I/O-heavy operations like bloom-generate
+# Too many parallel bloom processes can cause file system contention
+njobs_io=$(( ( $(nproc) + 1 ) / 2 ))  # Use half the CPU cores for I/O operations
+
+# Use unique semaphore ID for this operation to avoid blocking other scripts
+sem_id="generate_debian_$$_${RANDOM}"
+
 colcon list --base-paths src | cut -f1-2 | \
     while read -r pkg_name pkg_dir; do
 	# Prepare the working directory for the package
 	pkg_dir=$(realpath "$pkg_dir")
-	sem --id $$ "-j$(nproc)" copy_or_create_debian_dir "$pkg_name" "$pkg_dir"
+	sem --id "$sem_id" "-j${njobs_io}" copy_or_create_debian_dir "$pkg_name" "$pkg_dir"
     done
-sem --id $$ --wait
+sem --id "$sem_id" --wait
